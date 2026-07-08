@@ -1,0 +1,10 @@
+ERRO creamy-eye-cream: ValueError: nenhuma estrategia encontrou o preco na pagina
+Traceback (most recent call last):
+  File "/home/runner/work/claude-price-monitor/claude-price-monitor/coletor.py", line 180, in main
+    preco, disponivel, fonte = coletar_preco(p)
+                               ^^^^^^^^^^^^^^^^
+  File "/home/runner/work/claude-price-monitor/claude-price-monitor/coletor.py", line 163, in coletar_preco
+    raise ValueError("nenhuma estrategia encontrou o preco na pagina")
+ValueError: nenhuma estrategia encontrou o preco na pagina
+
+Coleta: 0 ok, 1 falha(s).
