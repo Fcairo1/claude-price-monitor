@@ -152,6 +152,25 @@ def preco_meta(html: str):
     return None
 
 
+def preco_amazon(html: str):
+    """Amazon usa formato proprio: JSON do buybox ou span a-offscreen."""
+    m = re.search(r'"priceAmount"\s*:\s*([\d.]+)', html)
+    preco = normalizar_preco(m.group(1)) if m else None
+    if not preco:
+        m = re.search(r'class="a-offscreen">\s*R\$\s*&?n?b?s?p?;?\s*([\d.,]+)', html)
+        preco = normalizar_preco(m.group(1)) if m else None
+    if not preco:
+        return None
+    disp = ("add-to-cart-button" in html) or ("Em estoque" in html)
+    return preco, disp, "amazon"
+
+
+def imagem_amazon(html: str):
+    m = re.search(r'"hiRes"\s*:\s*"(https://[^"]+)"', html) or \
+        re.search(r'data-old-hires="(https://[^"]+)"', html)
+    return m.group(1) if m else None
+
+
 def preco_generico(html: str):
     padroes = [
         r'itemprop=["\']price["\'][^>]*content=["\']([^"\']+)',
@@ -222,12 +241,19 @@ def coletar_preco(url: str):
     if r:
         return r
 
+    eh_amazon = "amazon." in urlsplit(url).netloc
     html = buscar(url)
-    for estrategia in (preco_jsonld, preco_meta, preco_generico):
+    estrategias = [preco_jsonld, preco_meta, preco_generico]
+    if eh_amazon:
+        estrategias.insert(0, preco_amazon)
+    for estrategia in estrategias:
         r = estrategia(html)
         if r:
             preco, disp, fonte = r
-            return preco, disp, fonte, imagem_de_html(html)
+            imagem = imagem_de_html(html)
+            if eh_amazon:
+                imagem = imagem_amazon(html) or imagem
+            return preco, disp, fonte, imagem
     amostra = re.sub(r"\s+", " ", html[:800])
     raise ValueError(
         f"nenhuma estrategia encontrou o preco (html {len(html)} chars; inicio: {amostra})"
