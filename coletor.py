@@ -18,6 +18,7 @@ import csv
 import json
 import re
 import sys
+import traceback
 import urllib.request
 import urllib.error
 from datetime import datetime
@@ -188,7 +189,8 @@ def main() -> int:
             print(f"OK   {p['id']}: R$ {preco:.2f} ({fonte})")
         except Exception as e:
             falhas.append(p["id"])
-            print(f"ERRO {p['id']}: {e}", file=sys.stderr)
+            print(f"ERRO {p['id']}: {type(e).__name__}: {e}", file=sys.stderr)
+            traceback.print_exc(file=sys.stderr)
 
     if linhas:
         existe = ARQ_HISTORICO.exists()
