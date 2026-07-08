@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Monitor de Preços</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+<style>
+  :root {
+    --bg: #0f1117; --card: #181b25; --card2: #1f2330;
+    --text: #e8eaf2; --muted: #8b90a5; --border: #2a2f40;
+    --accent: #4f8cff; --good: #2ecc71; --bad: #ff6b6b; --warn: #f5b942;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--bg); color: var(--text); font-family: -apple-system, 'Segoe UI', Roboto, sans-serif; min-height: 100vh; }
+  .wrap { max-width: 1100px; margin: 0 auto; padding: 24px 16px 60px; }
+  header { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; justify-content: space-between; margin-bottom: 8px; }
+  h1 { font-size: 1.5rem; letter-spacing: -0.02em; }
+  h1 span { color: var(--accent); }
+  .sub { color: var(--muted); font-size: 0.85rem; margin-bottom: 24px; }
+  .btn { border: 1px solid var(--border); background: var(--card2); color: var(--text); padding: 9px 16px; border-radius: 10px; font-size: 0.9rem; cursor: pointer; transition: 0.15s; }
+  .btn:hover { border-color: var(--accent); }
+  .btn.primary { background: var(--accent); border-color: var(--accent); color: #fff; font-weight: 600; }
+  .btn.danger { color: var(--bad); }
+  .btn.small { padding: 5px 10px; font-size: 0.78rem; border-radius: 8px; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 16px; }
+  .card { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 18px; display: flex; flex-direction: column; gap: 10px; }
+  .card.destaque { border-color: var(--good); box-shadow: 0 0 0 1px var(--good); }
+  .card-top { display: flex; justify-content: space-between; gap: 8px; align-items: flex-start; }
+  .card h2 { font-size: 1rem; line-height: 1.3; font-weight: 600; }
+  .card h2 a { color: var(--text); text-decoration: none; }
+  .card h2 a:hover { color: var(--accent); }
+  .tags { display: flex; gap: 6px; flex-wrap: wrap; }
+  .tag { font-size: 0.7rem; padding: 3px 8px; border-radius: 20px; background: var(--card2); color: var(--muted); border: 1px solid var(--border); white-space: nowrap; }
+  .tag.momento { background: rgba(46, 204, 113, 0.15); color: var(--good); border-color: var(--good); font-weight: 700; }
+  .tag.indisp { background: rgba(255, 107, 107, 0.12); color: var(--bad); border-color: var(--bad); }
+  .preco-atual { font-size: 1.9rem; font-weight: 700; letter-spacing: -0.02em; }
+  .var { font-size: 0.85rem; font-weight: 600; }
+  .var.up { color: var(--bad); } .var.down { color: var(--good); } .var.flat { color: var(--muted); }
+  .stats { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; }
+  .stat { background: var(--card2); border-radius: 10px; padding: 8px 10px; }
+  .stat .lbl { font-size: 0.68rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.04em; }
+  .stat .val { font-size: 0.92rem; font-weight: 600; margin-top: 2px; }
+  .chart-box { height: 130px; margin-top: 4px; }
+  .card-actions { display: flex; gap: 8px; justify-content: flex-end; margin-top: 2px; }
+  .empty { text-align: center; padding: 60px 20px; color: var(--muted); }
+  .aviso { background: rgba(245, 185, 66, 0.1); border: 1px solid var(--warn); color: var(--warn); border-radius: 12px; padding: 12px 16px; font-size: 0.85rem; margin-bottom: 20px; }
+  /* modal */
+  .modal-bg { position: fixed; inset: 0; background: rgba(0,0,0,0.6); display: none; align-items: center; justify-content: center; padding: 16px; z-index: 50; }
+  .modal-bg.aberto { display: flex; }
+  .modal { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 24px; width: 100%; max-width: 460px; max-height: 90vh; overflow-y: auto; }
+  .modal h3 { margin-bottom: 16px; font-size: 1.1rem; }
+  .campo { margin-bottom: 14px; }
+  .campo label { display: block; font-size: 0.8rem; color: var(--muted); margin-bottom: 5px; }
+  .campo input, .campo select { width: 100%; background: var(--card2); border: 1px solid var(--border); color: var(--text); padding: 10px 12px; border-radius: 10px; font-size: 0.92rem; }
+  .campo input:focus, .campo select:focus { outline: none; border-color: var(--accent); }
+  .modal-actions { display: flex; gap: 10px; justify-content: flex-end; margin-top: 20px; }
+  .hint { font-size: 0.78rem; color: var(--muted); line-height: 1.5; margin-top: 6px; }
+  .hint a { color: var(--accent); }
+  .toast { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); background: var(--card2); border: 1px solid var(--border); padding: 12px 20px; border-radius: 12px; font-size: 0.88rem; display: none; z-index: 60; max-width: 90vw; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>📉 Monitor de <span>Preços</span></h1>
+    <div style="display:flex; gap:8px;">
+      <button class="btn" id="btnToken" title="Configurar token do GitHub">⚙️</button>
+      <button class="btn primary" id="btnAdd">+ Adicionar produto</button>
+    </div>
+  </header>
+  <p class="sub" id="subinfo">Carregando…</p>
+  <div id="avisos"></div>
+  <div class="grid" id="grid"></div>
+  <div class="empty" id="vazio" style="display:none;">Nenhum produto cadastrado ainda.<br>Clique em <b>+ Adicionar produto</b> pra começar.</div>
+</div>
+
+<!-- modal produto -->
+<div class="modal-bg" id="modalProduto">
+  <div class="modal">
+    <h3 id="modalTitulo">Adicionar produto</h3>
+    <div class="campo">
+      <label>Link do produto na loja</label>
+      <input type="url" id="fUrl" placeholder="https://www.loja.com.br/produto...">
+    </div>
+    <div class="campo">
+      <label>Nome (como você quer ver no painel)</label>
+      <input type="text" id="fNome" placeholder="Ex.: Eye Cream (Creamy)">
+    </div>
+    <div class="campo">
+      <label>Tipo</label>
+      <select id="fTipo">
+        <option value="recorrente">Compra recorrente — avisar quando estiver abaixo da média</option>
+        <option value="futura">Compra futura — avisar quando bater o preço-alvo</option>
+      </select>
+    </div>
+    <div class="campo">
+      <label>Preço-alvo em R$ (opcional)</label>
+      <input type="number" id="fAlvo" step="0.01" min="0" placeholder="Ex.: 99.90">
+    </div>
+    <div class="modal-actions">
+      <button class="btn" onclick="fecharModais()">Cancelar</button>
+      <button class="btn primary" id="btnSalvar">Salvar</button>
+    </div>
+  </div>
+</div>
+
+<!-- modal token -->
+<div class="modal-bg" id="modalToken">
+  <div class="modal">
+    <h3>Token do GitHub</h3>
+    <p class="hint" style="margin-bottom:12px;">
+      Pra adicionar ou editar produtos por aqui, o painel precisa de um token do GitHub
+      (fica salvo só neste navegador). Crie em
+      <a href="https://github.com/settings/personal-access-tokens/new" target="_blank">github.com/settings/personal-access-tokens/new</a>:
+      Repository access → <b>Only select repositories</b> → <b>claude-price-monitor</b>;
+      Permissions → <b>Contents: Read and write</b>. Expiração de até 1 ano.
+    </p>
+    <div class="campo">
+      <label>Cole o token</label>
+      <input type="password" id="fToken" placeholder="github_pat_...">
+    </div>
+    <div class="modal-actions">
+      <button class="btn danger" onclick="removerToken()">Remover salvo</button>
+      <button class="btn" onclick="fecharModais()">Cancelar</button>
+      <button class="btn primary" onclick="salvarToken()">Salvar</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const OWNER = 'Fcairo1', REPO = 'claude-price-monitor', BRANCH = 'main';
+const API = `https://api.github.com/repos/${OWNER}/${REPO}/contents`;
+const BRL = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' });
+
+let produtos = [], historico = [], editandoId = null, charts = [];
+
+// ------------------------------------------------------------- carregamento
+async function lerArquivo(caminho) {
+  try {
+    const r = await fetch(`${API}/${caminho}?ref=${BRANCH}`, {
+      headers: { Accept: 'application/vnd.github.raw+json' }, cache: 'no-store'
+    });
+    if (r.ok) return await r.text();
+  } catch (e) { /* tenta fallback */ }
+  const r2 = await fetch(`https://raw.githubusercontent.com/${OWNER}/${REPO}/${BRANCH}/${caminho}?t=${Date.now()}`, { cache: 'no-store' });
+  if (!r2.ok) throw new Error(`não consegui ler ${caminho}`);
+  return await r2.text();
+}
+
+function parseCSV(texto) {
+  const linhas = texto.trim().split('\n');
+  if (linhas.length < 2) return [];
+  const cab = linhas[0].split(',');
+  return linhas.slice(1).map(l => {
+    const c = l.split(',');
+    const o = {};
+    cab.forEach((k, i) => o[k.trim()] = (c[i] || '').trim());
+    return o;
+  });
+}
+
+async function carregar() {
+  try {
+    const [pj, hc] = await Promise.all([
+      lerArquivo('produtos.json'),
+      lerArquivo('historico.csv').catch(() => '')
+    ]);
+    produtos = JSON.parse(pj).produtos;
+    historico = parseCSV(hc);
+    render();
+  } catch (e) {
+    document.getElementById('subinfo').textContent = 'Erro ao carregar dados: ' + e.message;
+  }
+}
+
+// ---------------------------------------------------------------- análise
+function serieDe(id) {
+  const porDia = {};
+  historico.filter(h => h.produto_id === id && h.preco)
+    .forEach(h => { porDia[h.data] = { preco: parseFloat(h.preco), disponivel: h.disponivel !== 'nao' }; });
+  return Object.entries(porDia)
+    .map(([data, v]) => ({ data, ...v }))
+    .sort((a, b) => a.data.localeCompare(b.data));
+}
+
+function statsDe(serie) {
+  if (!serie.length) return null;
+  const precos = serie.map(s => s.preco);
+  const atual = serie[serie.length - 1];
+  const anterior = serie.length > 1 ? serie[serie.length - 2].preco : null;
+  const min = Math.min(...precos);
+  const minData = serie.find(s => s.preco === min).data;
+  const ult30 = serie.slice(-30).map(s => s.preco);
+  const media30 = ult30.reduce((a, b) => a + b, 0) / ult30.length;
+  return { atual, anterior, min, minData, media30, dias: serie.length };
+}
+
+function bomMomento(p, st) {
+  if (!st || !st.atual.disponivel) return false;
+  const v = st.atual.preco;
+  if (p.preco_alvo && v <= p.preco_alvo) return true;
+  if (st.dias >= 5 && v <= st.min) return true;
+  if (st.dias >= 7 && v <= st.media30 * 0.97) return true;
+  return false;
+}
+
+// ----------------------------------------------------------------- render
+function render() {
+  charts.forEach(c => c.destroy()); charts = [];
+  const grid = document.getElementById('grid');
+  grid.innerHTML = '';
+  const ativos = produtos.filter(p => p.ativo !== false);
+  document.getElementById('vazio').style.display = ativos.length ? 'none' : 'block';
+
+  const ultima = historico.length ? historico[historico.length - 1] : null;
+  document.getElementById('subinfo').textContent = ultima
+    ? `${ativos.length} produto(s) monitorado(s) · última coleta: ${fmtData(ultima.data)} às ${ultima.hora}`
+    : `${ativos.length} produto(s) monitorado(s) · primeira coleta ainda vai rodar (diária, ~6h da manhã)`;
+
+  const emBaixa = [];
+
+  ativos.forEach(p => {
+    const serie = serieDe(p.id);
+    const st = statsDe(serie);
+    const destaque = bomMomento(p, st);
+    if (destaque) emBaixa.push(p.nome);
+
+    const card = document.createElement('div');
+    card.className = 'card' + (destaque ? ' destaque' : '');
+
+    let varHtml = '';
+    if (st && st.anterior != null) {
+      const d = st.atual.preco - st.anterior;
+      const pct = (d / st.anterior * 100).toFixed(1);
+      varHtml = d > 0 ? `<span class="var up">▲ +${pct}%</span>`
+              : d < 0 ? `<span class="var down">▼ ${pct}%</span>`
+              : `<span class="var flat">— estável</span>`;
+    }
+
+    card.innerHTML = `
+      <div class="card-top">
+        <h2><a href="${p.url}" target="_blank" rel="noopener">${esc(p.nome)} ↗</a></h2>
+      </div>
+      <div class="tags">
+        <span class="tag">${p.loja ? esc(p.loja) : dominio(p.url)}</span>
+        <span class="tag">${p.tipo === 'futura' ? '🎯 compra futura' : '🔁 recorrente'}</span>
+        ${p.preco_alvo ? `<span class="tag">alvo: ${BRL.format(p.preco_alvo)}</span>` : ''}
+        ${destaque ? '<span class="tag momento">🔥 BOM MOMENTO PRA COMPRAR</span>' : ''}
+        ${st && !st.atual.disponivel ? '<span class="tag indisp">indisponível</span>' : ''}
+      </div>
+      ${st ? `
+        <div><span class="preco-atual">${BRL.format(st.atual.preco)}</span> ${varHtml}</div>
+        <div class="stats">
+          <div class="stat"><div class="lbl">Mínimo histórico</div><div class="val">${BRL.format(st.min)}</div></div>
+          <div class="stat"><div class="lbl">Média 30 coletas</div><div class="val">${BRL.format(st.media30)}</div></div>
+          <div class="stat"><div class="lbl">Dias de dados</div><div class="val">${st.dias}</div></div>
+        </div>
+        <div class="chart-box"><canvas id="ch-${p.id}"></canvas></div>
+      ` : `<p style="color:var(--muted); font-size:0.85rem;">Sem coletas ainda — o primeiro preço aparece na próxima rodada automática.</p>`}
+      <div class="card-actions">
+        <button class="btn small" onclick="abrirEditar('${p.id}')">Editar</button>
+        <button class="btn small danger" onclick="removerProduto('${p.id}')">Remover</button>
+      </div>`;
+    grid.appendChild(card);
+
+    if (st) {
+      const ctx = card.querySelector(`canvas`).getContext('2d');
+      const ds = { labels: serie.map(s => fmtData(s.data)), data: serie.map(s => s.preco) };
+      charts.push(new Chart(ctx, {
+        type: 'line',
+        data: { labels: ds.labels, datasets: [{
+          data: ds.data, borderColor: '#4f8cff', borderWidth: 2, pointRadius: ds.data.length > 30 ? 0 : 2.5,
+          fill: true, backgroundColor: 'rgba(79,140,255,0.08)', tension: 0.25
+        }]},
+        options: {
+          responsive: true, maintainAspectRatio: false,
+          plugins: { legend: { display: false }, tooltip: { callbacks: { label: c => BRL.format(c.parsed.y) } } },
+          scales: {
+            x: { ticks: { color: '#8b90a5', maxTicksLimit: 5, font: { size: 10 } }, grid: { display: false } },
+            y: { ticks: { color: '#8b90a5', font: { size: 10 }, callback: v => 'R$ ' + v }, grid: { color: '#2a2f40' } }
+          }
+        }
+      }));
+    }
+  });
+
+  const avisos = document.getElementById('avisos');
+  avisos.innerHTML = emBaixa.length
+    ? `<div class="aviso">🔥 <b>Preço bom agora:</b> ${emBaixa.map(esc).join(' · ')}</div>` : '';
+}
+
+// -------------------------------------------------------- edição de produtos
+function getToken() { return localStorage.getItem('pm_token') || ''; }
+
+function precisaToken() {
+  if (getToken()) return false;
+  abrirModal('modalToken');
+  return true;
+}
+
+async function salvarProdutosJson(novaLista, msg) {
+  const token = getToken();
+  const meta = await fetch(`${API}/produtos.json?ref=${BRANCH}`, {
+    headers: { Authorization: `Bearer ${token}` }, cache: 'no-store'
+  });
+  if (!meta.ok) throw new Error('token inválido ou sem acesso ao repositório');
+  const { sha } = await meta.json();
+  const conteudo = JSON.stringify({ produtos: novaLista }, null, 2) + '\n';
+  const r = await fetch(`${API}/produtos.json`, {
+    method: 'PUT',
+    headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      message: msg, branch: BRANCH, sha,
+      content: btoa(unescape(encodeURIComponent(conteudo)))
+    })
+  });
+  if (!r.ok) throw new Error('falha ao salvar (' + r.status + ')');
+  produtos = novaLista;
+}
+
+function abrirAdd() {
+  if (precisaToken()) return;
+  editandoId = null;
+  document.getElementById('modalTitulo').textContent = 'Adicionar produto';
+  ['fUrl', 'fNome', 'fAlvo'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('fTipo').value = 'recorrente';
+  abrirModal('modalProduto');
+}
+
+function abrirEditar(id) {
+  if (precisaToken()) return;
+  const p = produtos.find(x => x.id === id);
+  if (!p) return;
+  editandoId = id;
+  document.getElementById('modalTitulo').textContent = 'Editar produto';
+  document.getElementById('fUrl').value = p.url;
+  document.getElementById('fNome').value = p.nome;
+  document.getElementById('fTipo').value = p.tipo || 'recorrente';
+  document.getElementById('fAlvo').value = p.preco_alvo ?? '';
+  abrirModal('modalProduto');
+}
+
+async function salvarProduto() {
+  const url = document.getElementById('fUrl').value.trim();
+  const nome = document.getElementById('fNome').value.trim();
+  const tipo = document.getElementById('fTipo').value;
+  const alvo = parseFloat(document.getElementById('fAlvo').value) || null;
+  if (!url || !url.startsWith('http')) return toast('Coloca o link do produto 🙂');
+  if (!nome) return toast('Dá um nome pro produto 🙂');
+
+  const btn = document.getElementById('btnSalvar');
+  btn.disabled = true; btn.textContent = 'Salvando…';
+  try {
+    let lista;
+    if (editandoId) {
+      lista = produtos.map(p => p.id === editandoId ? { ...p, url, nome, tipo, preco_alvo: alvo } : p);
+    } else {
+      const id = slug(nome);
+      if (produtos.some(p => p.id === id)) throw new Error('já existe um produto com esse nome');
+      lista = [...produtos, { id, nome, url, loja: dominio(url), tipo, preco_alvo: alvo, ativo: true }];
+    }
+    await salvarProdutosJson(lista, (editandoId ? 'editar' : 'adicionar') + ` produto: ${nome}`);
+    fecharModais(); render();
+    toast(editandoId ? 'Produto atualizado ✅' : 'Produto adicionado ✅ A coleta do preço já foi disparada — dá refresh em ~1 min.');
+  } catch (e) { toast('Erro: ' + e.message); }
+  btn.disabled = false; btn.textContent = 'Salvar';
+}
+
+async function removerProduto(id) {
+  if (precisaToken()) return;
+  const p = produtos.find(x => x.id === id);
+  if (!p || !confirm(`Remover "${p.nome}" do monitor?`)) return;
+  try {
+    await salvarProdutosJson(produtos.filter(x => x.id !== id), `remover produto: ${p.nome}`);
+    render(); toast('Produto removido ✅');
+  } catch (e) { toast('Erro: ' + e.message); }
+}
+
+// ------------------------------------------------------------------- token
+function salvarToken() {
+  const t = document.getElementById('fToken').value.trim();
+  if (!t) return toast('Cola o token primeiro 🙂');
+  localStorage.setItem('pm_token', t);
+  fecharModais(); toast('Token salvo neste navegador ✅');
+}
+function removerToken() {
+  localStorage.removeItem('pm_token');
+  document.getElementById('fToken').value = '';
+  fecharModais(); toast('Token removido.');
+}
+
+// ------------------------------------------------------------------ helpers
+function abrirModal(id) { document.getElementById(id).classList.add('aberto'); }
+function fecharModais() { document.querySelectorAll('.modal-bg').forEach(m => m.classList.remove('aberto')); }
+function esc(s) { const d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
+function dominio(url) { try { return new URL(url).hostname.replace('www.', ''); } catch { return ''; } }
+function slug(s) {
+  return s.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '').slice(0, 50);
+}
+function fmtData(iso) { const [a, m, d] = iso.split('-'); return `${d}/${m}`; }
+let toastTimer;
+function toast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.style.display = 'block';
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.style.display = 'none', 5000);
+}
+
+document.getElementById('btnAdd').onclick = abrirAdd;
+document.getElementById('btnToken').onclick = () => abrirModal('modalToken');
+document.getElementById('btnSalvar').onclick = salvarProduto;
+document.querySelectorAll('.modal-bg').forEach(m =>
+  m.addEventListener('click', e => { if (e.target === m) fecharModais(); }));
+
+carregar();
+</script>
+</body>
+</html>

@@ -1,0 +1,13 @@
+{
+  "produtos": [
+    {
+      "id": "creamy-eye-cream",
+      "nome": "Creme Clareador para Olhos - Eye Cream (Creamy)",
+      "url": "https://www.creamy.com.br/eye-cream/p",
+      "loja": "Creamy",
+      "tipo": "recorrente",
+      "preco_alvo": null,
+      "ativo": true
+    }
+  ]
+}
