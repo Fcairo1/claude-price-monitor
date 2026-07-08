@@ -1,0 +1,2 @@
+data,hora,produto_id,preco,disponivel,fonte
+2026-07-08,15:32,creamy-eye-cream,136.83,sim,api-vtex
