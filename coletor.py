@@ -11,7 +11,7 @@ Estrategias de extracao (em ordem):
   3. Meta tags Open Graph (product:price:amount) - usado por lojas VTEX como a Creamy
   4. Regex generica em atributos itemprop/price
 
-Uso apenas de biblioteca padrao do Python (sem dependencias).
+Uso apenas de biblioteca padrao do Python (sem dependencias externas).
 """
 
 import csv

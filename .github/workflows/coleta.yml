@@ -36,7 +36,7 @@ jobs:
         run: |
           git config user.name "price-monitor-bot"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add historico.csv coleta.log
+          git add -A
           if git diff --cached --quiet; then
             echo "Nada novo para salvar."
           else
