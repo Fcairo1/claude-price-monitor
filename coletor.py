@@ -11,16 +11,18 @@ Estrategias de extracao (em ordem):
   3. Meta tags Open Graph (product:price:amount) - usado por lojas VTEX como a Creamy
   4. Regex generica em atributos itemprop/price
 
-Uso apenas de biblioteca padrao do Python (sem dependencias externas).
+Uso apenas de biblioteca padrao do Python (sem dependencias).
 """
 
 import csv
+import gzip
 import json
 import re
 import sys
 import traceback
 import urllib.request
 import urllib.error
+from urllib.parse import urlsplit
 from datetime import datetime
 from pathlib import Path
 from zoneinfo import ZoneInfo
@@ -44,10 +46,14 @@ def buscar(url: str, timeout: int = 40) -> str:
             "User-Agent": UA,
             "Accept": "text/html,application/xhtml+xml,application/json;q=0.9,*/*;q=0.8",
             "Accept-Language": "pt-BR,pt;q=0.9,en;q=0.8",
+            "Accept-Encoding": "gzip",
         },
     )
     with urllib.request.urlopen(req, timeout=timeout) as r:
-        return r.read().decode("utf-8", errors="replace")
+        dados = r.read()
+    if dados[:2] == b"\x1f\x8b":  # resposta gzipada
+        dados = gzip.decompress(dados)
+    return dados.decode("utf-8", errors="replace")
 
 
 def normalizar_preco(bruto) -> float | None:
@@ -147,6 +153,34 @@ def preco_generico(html: str):
     return None
 
 
+def preco_vtex(url: str):
+    """Lojas VTEX (URLs terminando em /p): API publica de catalogo."""
+    partes = urlsplit(url)
+    caminho = partes.path.rstrip("/")
+    if not caminho.endswith("/p"):
+        return None
+    link_text = caminho[:-2].strip("/").split("/")[-1]
+    api = f"{partes.scheme}://{partes.netloc}/api/catalog_system/pub/products/search/{link_text}/p"
+    try:
+        dados = json.loads(buscar(api, timeout=30))
+    except Exception:
+        return None
+    if not isinstance(dados, list) or not dados:
+        return None
+    ofertas = []
+    for item in dados[0].get("items", []):
+        for seller in item.get("sellers", []):
+            oferta = seller.get("commertialOffer") or {}
+            preco = normalizar_preco(oferta.get("Price"))
+            if preco:
+                ofertas.append((preco, oferta.get("AvailableQuantity", 0) > 0))
+    if not ofertas:
+        return None
+    disponiveis = [o for o in ofertas if o[1]]
+    preco, disp = min(disponiveis or ofertas, key=lambda o: o[0])
+    return preco, disp, "api-vtex"
+
+
 def coletar_preco(produto: dict):
     url = produto["url"]
 
@@ -155,12 +189,19 @@ def coletar_preco(produto: dict):
         if r:
             return r
 
+    r = preco_vtex(url)
+    if r:
+        return r
+
     html = buscar(url)
     for estrategia in (preco_jsonld, preco_meta, preco_generico):
         r = estrategia(html)
         if r:
             return r
-    raise ValueError("nenhuma estrategia encontrou o preco na pagina")
+    amostra = re.sub(r"\s+", " ", html[:800])
+    raise ValueError(
+        f"nenhuma estrategia encontrou o preco (html {len(html)} chars; inicio: {amostra})"
+    )
 
 
 # ----------------------------------------------------------------------- main
