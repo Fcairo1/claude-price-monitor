@@ -36,6 +36,7 @@ Monitor automático de preços de produtos. Roda sozinho na nuvem (GitHub Action
 - `tipo`: `"recorrente"` (compra frequente) ou `"futura"` (compra planejada)
 - `preco_alvo`: número ou `null`
 - `ativo`: `false` pausa a coleta sem perder o histórico
+- `imagem`: URL da foto (opcional — se faltar, o coletor busca automaticamente na loja na próxima coleta)
 
 ## Lojas suportadas
 

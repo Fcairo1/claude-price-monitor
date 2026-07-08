@@ -79,6 +79,18 @@ def normalizar_preco(bruto) -> float | None:
 
 # ---------------------------------------------------------------- estrategias
 
+def imagem_de_html(html: str):
+    padroes = [
+        r'(?:property|name)=["\']og:image["\'][^>]*content=["\']([^"\']+)',
+        r'content=["\']([^"\']+)["\'][^>]*(?:property|name)=["\']og:image["\']',
+    ]
+    for p in padroes:
+        m = re.search(p, html, re.I)
+        if m and m.group(1).startswith("http"):
+            return m.group(1)
+    return None
+
+
 def preco_mercado_livre(url: str):
     m = re.search(r"(MLB)-?(\d+)", url, re.I)
     if not m:
@@ -89,7 +101,9 @@ def preco_mercado_livre(url: str):
         preco = normalizar_preco(dados.get("price"))
         if preco:
             disponivel = dados.get("status") == "active" and dados.get("available_quantity", 0) > 0
-            return preco, disponivel, "api-mercadolivre"
+            fotos = dados.get("pictures") or []
+            imagem = (fotos[0].get("secure_url") if fotos else None) or dados.get("secure_thumbnail") or dados.get("thumbnail")
+            return preco, disponivel, "api-mercadolivre", imagem
     except Exception:
         pass
     return None  # cai para as estrategias genericas na pagina
@@ -178,7 +192,13 @@ def preco_vtex(url: str):
         return None
     disponiveis = [o for o in ofertas if o[1]]
     preco, disp = min(disponiveis or ofertas, key=lambda o: o[0])
-    return preco, disp, "api-vtex"
+    imagem = None
+    for item in dados[0].get("items", []):
+        imgs = item.get("images") or []
+        if imgs and imgs[0].get("imageUrl"):
+            imagem = imgs[0]["imageUrl"]
+            break
+    return preco, disp, "api-vtex", imagem
 
 
 def coletar_preco(produto: dict):
@@ -197,7 +217,8 @@ def coletar_preco(produto: dict):
     for estrategia in (preco_jsonld, preco_meta, preco_generico):
         r = estrategia(html)
         if r:
-            return r
+            preco, disp, fonte = r
+            return preco, disp, fonte, imagem_de_html(html)
     amostra = re.sub(r"\s+", " ", html[:800])
     raise ValueError(
         f"nenhuma estrategia encontrou o preco (html {len(html)} chars; inicio: {amostra})"
@@ -207,7 +228,8 @@ def coletar_preco(produto: dict):
 # ----------------------------------------------------------------------- main
 
 def main() -> int:
-    produtos = json.loads(ARQ_PRODUTOS.read_text(encoding="utf-8"))["produtos"]
+    dados = json.loads(ARQ_PRODUTOS.read_text(encoding="utf-8"))
+    produtos = dados["produtos"]
     ativos = [p for p in produtos if p.get("ativo", True)]
     if not ativos:
         print("Nenhum produto ativo para coletar.")
@@ -215,10 +237,15 @@ def main() -> int:
 
     agora = datetime.now(TZ)
     linhas, falhas = [], []
+    produtos_alterados = False
 
     for p in ativos:
         try:
-            preco, disponivel, fonte = coletar_preco(p)
+            preco, disponivel, fonte, imagem = coletar_preco(p)
+            if imagem and not p.get("imagem"):
+                p["imagem"] = imagem
+                produtos_alterados = True
+                print(f"IMG  {p['id']}: imagem encontrada automaticamente")
             linhas.append([
                 agora.strftime("%Y-%m-%d"),
                 agora.strftime("%H:%M"),
@@ -240,6 +267,11 @@ def main() -> int:
             if not existe:
                 w.writerow(CABECALHO)
             w.writerows(linhas)
+
+    if produtos_alterados:
+        ARQ_PRODUTOS.write_text(
+            json.dumps(dados, ensure_ascii=False, indent=2) + "\n", encoding="utf-8"
+        )
 
     print(f"\nColeta: {len(linhas)} ok, {len(falhas)} falha(s).")
     if falhas and not linhas:
