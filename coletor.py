@@ -31,7 +31,7 @@ TZ = ZoneInfo("America/Sao_Paulo")
 BASE = Path(__file__).parent
 ARQ_PRODUTOS = BASE / "produtos.json"
 ARQ_HISTORICO = BASE / "historico.csv"
-CABECALHO = ["data", "hora", "produto_id", "preco", "disponivel", "fonte"]
+CABECALHO = ["data", "hora", "produto_id", "loja", "preco", "disponivel", "fonte"]
 
 UA = (
     "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
@@ -201,9 +201,18 @@ def preco_vtex(url: str):
     return preco, disp, "api-vtex", imagem
 
 
-def coletar_preco(produto: dict):
-    url = produto["url"]
+def lojas_de(produto: dict):
+    """Retorna [(nome_da_loja, url), ...] — aceita formato novo (lojas) e antigo (url)."""
+    def nome_padrao(url):
+        return urlsplit(url).netloc.replace("www.", "")
+    if produto.get("lojas"):
+        return [(l.get("loja") or nome_padrao(l["url"]), l["url"]) for l in produto["lojas"] if l.get("url")]
+    if produto.get("url"):
+        return [(produto.get("loja") or nome_padrao(produto["url"]), produto["url"])]
+    return []
 
+
+def coletar_preco(url: str):
     if "mercadolivre.com" in url or "mercadolibre.com" in url:
         r = preco_mercado_livre(url)
         if r:
@@ -240,25 +249,27 @@ def main() -> int:
     produtos_alterados = False
 
     for p in ativos:
-        try:
-            preco, disponivel, fonte, imagem = coletar_preco(p)
-            if imagem and not p.get("imagem"):
-                p["imagem"] = imagem
-                produtos_alterados = True
-                print(f"IMG  {p['id']}: imagem encontrada automaticamente")
-            linhas.append([
-                agora.strftime("%Y-%m-%d"),
-                agora.strftime("%H:%M"),
-                p["id"],
-                f"{preco:.2f}",
-                "sim" if disponivel else "nao",
-                fonte,
-            ])
-            print(f"OK   {p['id']}: R$ {preco:.2f} ({fonte})")
-        except Exception as e:
-            falhas.append(p["id"])
-            print(f"ERRO {p['id']}: {type(e).__name__}: {e}", file=sys.stderr)
-            traceback.print_exc(file=sys.stderr)
+        for nome_loja, url in lojas_de(p):
+            try:
+                preco, disponivel, fonte, imagem = coletar_preco(url)
+                if imagem and not p.get("imagem"):
+                    p["imagem"] = imagem
+                    produtos_alterados = True
+                    print(f"IMG  {p['id']}: imagem encontrada automaticamente")
+                linhas.append([
+                    agora.strftime("%Y-%m-%d"),
+                    agora.strftime("%H:%M"),
+                    p["id"],
+                    nome_loja,
+                    f"{preco:.2f}",
+                    "sim" if disponivel else "nao",
+                    fonte,
+                ])
+                print(f"OK   {p['id']} @ {nome_loja}: R$ {preco:.2f} ({fonte})")
+            except Exception as e:
+                falhas.append(f"{p['id']} @ {nome_loja}")
+                print(f"ERRO {p['id']} @ {nome_loja}: {type(e).__name__}: {e}", file=sys.stderr)
+                traceback.print_exc(file=sys.stderr)
 
     if linhas:
         existe = ARQ_HISTORICO.exists()

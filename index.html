@@ -23,38 +23,49 @@
   .btn.primary { background: var(--accent); border-color: var(--accent); color: #fff; font-weight: 600; }
   .btn.danger { color: var(--bad); }
   .btn.small { padding: 5px 10px; font-size: 0.78rem; border-radius: 8px; }
-  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 16px; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(330px, 1fr)); gap: 16px; }
   .card { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 18px; display: flex; flex-direction: column; gap: 10px; }
   .card.destaque { border-color: var(--good); box-shadow: 0 0 0 1px var(--good); }
   .card-top { display: flex; gap: 12px; align-items: flex-start; }
   .thumb { width: 60px; height: 60px; object-fit: cover; border-radius: 12px; border: 1px solid var(--border); background: var(--card2); flex-shrink: 0; }
   .card h2 { font-size: 1rem; line-height: 1.3; font-weight: 600; }
-  .card h2 a { color: var(--text); text-decoration: none; }
-  .card h2 a:hover { color: var(--accent); }
   .tags { display: flex; gap: 6px; flex-wrap: wrap; }
   .tag { font-size: 0.7rem; padding: 3px 8px; border-radius: 20px; background: var(--card2); color: var(--muted); border: 1px solid var(--border); white-space: nowrap; }
   .tag.momento { background: rgba(46, 204, 113, 0.15); color: var(--good); border-color: var(--good); font-weight: 700; }
-  .tag.indisp { background: rgba(255, 107, 107, 0.12); color: var(--bad); border-color: var(--bad); }
   .preco-atual { font-size: 1.9rem; font-weight: 700; letter-spacing: -0.02em; }
+  .melhor-loja { color: var(--muted); font-size: 0.82rem; }
+  .melhor-loja b { color: var(--good); }
   .var { font-size: 0.85rem; font-weight: 600; }
   .var.up { color: var(--bad); } .var.down { color: var(--good); } .var.flat { color: var(--muted); }
+  .lojas { display: flex; flex-direction: column; gap: 5px; }
+  .loja-row { display: flex; justify-content: space-between; align-items: center; gap: 8px; background: var(--card2); border: 1px solid var(--border); border-radius: 10px; padding: 7px 11px; text-decoration: none; color: var(--text); font-size: 0.85rem; transition: 0.15s; }
+  .loja-row:hover { border-color: var(--accent); }
+  .loja-row.melhor { border-color: var(--good); }
+  .loja-row .preco { font-weight: 700; white-space: nowrap; }
+  .loja-row.melhor .preco { color: var(--good); }
+  .loja-row .nome { color: var(--muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .loja-row .indisp { color: var(--bad); font-size: 0.75rem; }
   .stats { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; }
   .stat { background: var(--card2); border-radius: 10px; padding: 8px 10px; }
   .stat .lbl { font-size: 0.68rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.04em; }
   .stat .val { font-size: 0.92rem; font-weight: 600; margin-top: 2px; }
-  .chart-box { height: 130px; margin-top: 4px; }
+  .chart-box { height: 150px; margin-top: 4px; }
   .card-actions { display: flex; gap: 8px; justify-content: flex-end; margin-top: 2px; }
   .empty { text-align: center; padding: 60px 20px; color: var(--muted); }
   .aviso { background: rgba(245, 185, 66, 0.1); border: 1px solid var(--warn); color: var(--warn); border-radius: 12px; padding: 12px 16px; font-size: 0.85rem; margin-bottom: 20px; }
   /* modal */
   .modal-bg { position: fixed; inset: 0; background: rgba(0,0,0,0.6); display: none; align-items: center; justify-content: center; padding: 16px; z-index: 50; }
   .modal-bg.aberto { display: flex; }
-  .modal { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 24px; width: 100%; max-width: 460px; max-height: 90vh; overflow-y: auto; }
+  .modal { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 24px; width: 100%; max-width: 480px; max-height: 90vh; overflow-y: auto; }
   .modal h3 { margin-bottom: 16px; font-size: 1.1rem; }
   .campo { margin-bottom: 14px; }
   .campo label { display: block; font-size: 0.8rem; color: var(--muted); margin-bottom: 5px; }
   .campo input, .campo select { width: 100%; background: var(--card2); border: 1px solid var(--border); color: var(--text); padding: 10px 12px; border-radius: 10px; font-size: 0.92rem; }
   .campo input:focus, .campo select:focus { outline: none; border-color: var(--accent); }
+  .loja-input-row { display: flex; gap: 6px; margin-bottom: 8px; align-items: center; }
+  .loja-input-row input.nome-loja { flex: 0 0 32%; }
+  .loja-input-row input.url-loja { flex: 1; }
+  .loja-input-row .rm { border: none; background: none; color: var(--bad); cursor: pointer; font-size: 1.1rem; padding: 4px; }
   .modal-actions { display: flex; gap: 10px; justify-content: flex-end; margin-top: 20px; }
   .hint { font-size: 0.78rem; color: var(--muted); line-height: 1.5; margin-top: 6px; }
   .hint a { color: var(--accent); }
@@ -81,12 +92,14 @@
   <div class="modal">
     <h3 id="modalTitulo">Adicionar produto</h3>
     <div class="campo">
-      <label>Link do produto na loja</label>
-      <input type="url" id="fUrl" placeholder="https://www.loja.com.br/produto...">
-    </div>
-    <div class="campo">
       <label>Nome (como você quer ver no painel)</label>
       <input type="text" id="fNome" placeholder="Ex.: Eye Cream (Creamy)">
+    </div>
+    <div class="campo">
+      <label>Lojas — cole o link do produto em cada loja que quiser comparar</label>
+      <div id="lojasBox"></div>
+      <button class="btn small" type="button" onclick="addLojaRow()">+ adicionar outra loja</button>
+      <p class="hint">O nome da loja é opcional (uso o site como nome se ficar vazio).</p>
     </div>
     <div class="campo">
       <label>Tipo</label>
@@ -141,6 +154,7 @@
 const OWNER = 'Fcairo1', REPO = 'claude-price-monitor', BRANCH = 'main';
 const API = `https://api.github.com/repos/${OWNER}/${REPO}/contents`;
 const BRL = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' });
+const CORES = ['#4f8cff', '#2ecc71', '#f5b942', '#ff6b6b', '#b17ff5', '#4fd8cf', '#f58fd0'];
 
 let produtos = [], historico = [], editandoId = null, charts = [];
 
@@ -184,13 +198,27 @@ async function carregar() {
 }
 
 // ---------------------------------------------------------------- análise
-function serieDe(id) {
+function lojasDe(p) {
+  if (p.lojas && p.lojas.length) return p.lojas.filter(l => l.url).map(l => ({ loja: l.loja || dominio(l.url), url: l.url }));
+  if (p.url) return [{ loja: p.loja || dominio(p.url), url: p.url }];
+  return [];
+}
+
+function serieLoja(id, loja) {
   const porDia = {};
-  historico.filter(h => h.produto_id === id && h.preco)
+  historico.filter(h => h.produto_id === id && h.preco && (h.loja || '') === loja)
     .forEach(h => { porDia[h.data] = { preco: parseFloat(h.preco), disponivel: h.disponivel !== 'nao' }; });
-  return Object.entries(porDia)
-    .map(([data, v]) => ({ data, ...v }))
-    .sort((a, b) => a.data.localeCompare(b.data));
+  return Object.entries(porDia).map(([data, v]) => ({ data, ...v })).sort((a, b) => a.data.localeCompare(b.data));
+}
+
+function serieMelhor(id) { // menor preço de cada dia entre todas as lojas
+  const porDia = {};
+  historico.filter(h => h.produto_id === id && h.preco).forEach(h => {
+    const preco = parseFloat(h.preco);
+    if (!porDia[h.data] || preco < porDia[h.data].preco)
+      porDia[h.data] = { preco, disponivel: h.disponivel !== 'nao' };
+  });
+  return Object.entries(porDia).map(([data, v]) => ({ data, ...v })).sort((a, b) => a.data.localeCompare(b.data));
 }
 
 function statsDe(serie) {
@@ -199,10 +227,9 @@ function statsDe(serie) {
   const atual = serie[serie.length - 1];
   const anterior = serie.length > 1 ? serie[serie.length - 2].preco : null;
   const min = Math.min(...precos);
-  const minData = serie.find(s => s.preco === min).data;
   const ult30 = serie.slice(-30).map(s => s.preco);
   const media30 = ult30.reduce((a, b) => a + b, 0) / ult30.length;
-  return { atual, anterior, min, minData, media30, dias: serie.length };
+  return { atual, anterior, min, media30, dias: serie.length };
 }
 
 function bomMomento(p, st) {
@@ -230,10 +257,21 @@ function render() {
   const emBaixa = [];
 
   ativos.forEach(p => {
-    const serie = serieDe(p.id);
-    const st = statsDe(serie);
+    const lojas = lojasDe(p);
+    const melhor = serieMelhor(p.id);
+    const st = statsDe(melhor);
     const destaque = bomMomento(p, st);
     if (destaque) emBaixa.push(p.nome);
+
+    // preço atual por loja (último dia registrado de cada uma)
+    const infoLojas = lojas.map(l => {
+      const s = serieLoja(p.id, l.loja);
+      const ult = s.length ? s[s.length - 1] : null;
+      return { ...l, atual: ult ? ult.preco : null, disponivel: ult ? ult.disponivel : true, serie: s };
+    });
+    const disponiveisComPreco = infoLojas.filter(l => l.atual != null && l.disponivel);
+    const maisBarata = disponiveisComPreco.length
+      ? disponiveisComPreco.reduce((a, b) => a.atual <= b.atual ? a : b) : null;
 
     const card = document.createElement('div');
     card.className = 'card' + (destaque ? ' destaque' : '');
@@ -250,24 +288,38 @@ function render() {
     card.innerHTML = `
       <div class="card-top">
         ${p.imagem ? `<img class="thumb" src="${esc(p.imagem)}" alt="" loading="lazy" onerror="this.style.display='none'">` : ''}
-        <h2><a href="${p.url}" target="_blank" rel="noopener">${esc(p.nome)} ↗</a></h2>
-      </div>
-      <div class="tags">
-        <span class="tag">${p.loja ? esc(p.loja) : dominio(p.url)}</span>
-        <span class="tag">${p.tipo === 'futura' ? '🎯 compra futura' : '🔁 recorrente'}</span>
-        ${p.preco_alvo ? `<span class="tag">alvo: ${BRL.format(p.preco_alvo)}</span>` : ''}
-        ${destaque ? '<span class="tag momento">🔥 BOM MOMENTO PRA COMPRAR</span>' : ''}
-        ${st && !st.atual.disponivel ? '<span class="tag indisp">indisponível</span>' : ''}
+        <div>
+          <h2>${esc(p.nome)}</h2>
+          <div class="tags" style="margin-top:6px;">
+            <span class="tag">${p.tipo === 'futura' ? '🎯 compra futura' : '🔁 recorrente'}</span>
+            ${p.preco_alvo ? `<span class="tag">alvo: ${BRL.format(p.preco_alvo)}</span>` : ''}
+            ${destaque ? '<span class="tag momento">🔥 BOM MOMENTO</span>' : ''}
+          </div>
+        </div>
       </div>
       ${st ? `
-        <div><span class="preco-atual">${BRL.format(st.atual.preco)}</span> ${varHtml}</div>
+        <div>
+          <span class="preco-atual">${BRL.format(st.atual.preco)}</span> ${varHtml}
+          ${maisBarata && lojas.length > 1 ? `<div class="melhor-loja">melhor preço hoje na <b>${esc(maisBarata.loja)}</b></div>` : ''}
+        </div>` : `<p style="color:var(--muted); font-size:0.85rem;">Sem coletas ainda — o primeiro preço aparece na próxima rodada automática.</p>`}
+      <div class="lojas">
+        ${infoLojas.map(l => `
+          <a class="loja-row ${maisBarata && l.loja === maisBarata.loja && lojas.length > 1 ? 'melhor' : ''}" href="${esc(l.url)}" target="_blank" rel="noopener">
+            <span class="nome">${esc(l.loja)} ↗</span>
+            <span>
+              ${!l.disponivel ? '<span class="indisp">indisponível</span> ' : ''}
+              <span class="preco">${l.atual != null ? BRL.format(l.atual) : '—'}</span>
+            </span>
+          </a>`).join('')}
+      </div>
+      ${st ? `
         <div class="stats">
           <div class="stat"><div class="lbl">Mínimo histórico</div><div class="val">${BRL.format(st.min)}</div></div>
           <div class="stat"><div class="lbl">Média 30 coletas</div><div class="val">${BRL.format(st.media30)}</div></div>
           <div class="stat"><div class="lbl">Dias de dados</div><div class="val">${st.dias}</div></div>
         </div>
-        <div class="chart-box"><canvas id="ch-${p.id}"></canvas></div>
-      ` : `<p style="color:var(--muted); font-size:0.85rem;">Sem coletas ainda — o primeiro preço aparece na próxima rodada automática.</p>`}
+        <div class="chart-box"><canvas></canvas></div>
+      ` : ''}
       <div class="card-actions">
         <button class="btn small" onclick="abrirEditar('${p.id}')">Editar</button>
         <button class="btn small danger" onclick="removerProduto('${p.id}')">Remover</button>
@@ -275,17 +327,32 @@ function render() {
     grid.appendChild(card);
 
     if (st) {
-      const ctx = card.querySelector(`canvas`).getContext('2d');
-      const ds = { labels: serie.map(s => fmtData(s.data)), data: serie.map(s => s.preco) };
+      const comSerie = infoLojas.filter(l => l.serie.length);
+      const datas = [...new Set(comSerie.flatMap(l => l.serie.map(s => s.data)))].sort();
+      const ctx = card.querySelector('canvas').getContext('2d');
       charts.push(new Chart(ctx, {
         type: 'line',
-        data: { labels: ds.labels, datasets: [{
-          data: ds.data, borderColor: '#4f8cff', borderWidth: 2, pointRadius: ds.data.length > 30 ? 0 : 2.5,
-          fill: true, backgroundColor: 'rgba(79,140,255,0.08)', tension: 0.25
-        }]},
+        data: {
+          labels: datas.map(fmtData),
+          datasets: comSerie.map((l, i) => {
+            const mapa = Object.fromEntries(l.serie.map(s => [s.data, s.preco]));
+            return {
+              label: l.loja,
+              data: datas.map(d => mapa[d] ?? null),
+              borderColor: CORES[i % CORES.length], borderWidth: 2,
+              pointRadius: datas.length > 30 ? 0 : 2.5,
+              spanGaps: true, tension: 0.25,
+              fill: comSerie.length === 1,
+              backgroundColor: 'rgba(79,140,255,0.08)'
+            };
+          })
+        },
         options: {
           responsive: true, maintainAspectRatio: false,
-          plugins: { legend: { display: false }, tooltip: { callbacks: { label: c => BRL.format(c.parsed.y) } } },
+          plugins: {
+            legend: { display: comSerie.length > 1, labels: { color: '#8b90a5', boxWidth: 10, font: { size: 10 } } },
+            tooltip: { callbacks: { label: c => `${c.dataset.label}: ${BRL.format(c.parsed.y)}` } }
+          },
           scales: {
             x: { ticks: { color: '#8b90a5', maxTicksLimit: 5, font: { size: 10 } }, grid: { display: false } },
             y: { ticks: { color: '#8b90a5', font: { size: 10 }, callback: v => 'R$ ' + v }, grid: { color: '#2a2f40' } }
@@ -329,12 +396,52 @@ async function salvarProdutosJson(novaLista, msg) {
   produtos = novaLista;
 }
 
+function addLojaRow(nome = '', url = '') {
+  const box = document.getElementById('lojasBox');
+  const row = document.createElement('div');
+  row.className = 'loja-input-row';
+  row.innerHTML = `
+    <input type="text" class="nome-loja" placeholder="Loja" value="${esc(nome)}">
+    <input type="url" class="url-loja" placeholder="https://..." value="${esc(url)}">
+    <button type="button" class="rm" title="Remover loja" onclick="this.parentElement.remove()">✕</button>`;
+  box.appendChild(row);
+}
+
+function lerLojasDoForm() {
+  return [...document.querySelectorAll('#lojasBox .loja-input-row')]
+    .map(r => ({
+      loja: r.querySelector('.nome-loja').value.trim() || null,
+      url: r.querySelector('.url-loja').value.trim()
+    }))
+    .filter(l => l.url.startsWith('http'))
+    .map(l => ({ loja: l.loja || dominio(l.url), url: l.url }));
+}
+
 function abrirAdd() {
   if (precisaToken()) return;
   editandoId = null;
   document.getElementById('modalTitulo').textContent = 'Adicionar produto';
-  ['fUrl', 'fNome', 'fAlvo', 'fImagemUrl', 'fImagemArquivo'].forEach(id => document.getElementById(id).value = '');
+  ['fNome', 'fAlvo', 'fImagemUrl', 'fImagemArquivo'].forEach(id => document.getElementById(id).value = '');
   document.getElementById('fTipo').value = 'recorrente';
+  document.getElementById('lojasBox').innerHTML = '';
+  addLojaRow();
+  abrirModal('modalProduto');
+}
+
+function abrirEditar(id) {
+  if (precisaToken()) return;
+  const p = produtos.find(x => x.id === id);
+  if (!p) return;
+  editandoId = id;
+  document.getElementById('modalTitulo').textContent = 'Editar produto';
+  document.getElementById('fNome').value = p.nome;
+  document.getElementById('fTipo').value = p.tipo || 'recorrente';
+  document.getElementById('fAlvo').value = p.preco_alvo ?? '';
+  document.getElementById('fImagemUrl').value = p.imagem ?? '';
+  document.getElementById('fImagemArquivo').value = '';
+  document.getElementById('lojasBox').innerHTML = '';
+  const lojas = lojasDe(p);
+  if (lojas.length) lojas.forEach(l => addLojaRow(l.loja, l.url)); else addLojaRow();
   abrirModal('modalProduto');
 }
 
@@ -348,7 +455,6 @@ async function enviarImagem(id, arquivo) {
     fr.readAsDataURL(arquivo);
   });
   const token = getToken();
-  // se ja existe, precisa do sha pra sobrescrever
   let sha;
   const meta = await fetch(`${API}/${caminho}?ref=${BRANCH}`, { headers: { Authorization: `Bearer ${token}` }, cache: 'no-store' });
   if (meta.ok) sha = (await meta.json()).sha;
@@ -361,28 +467,13 @@ async function enviarImagem(id, arquivo) {
   return `https://raw.githubusercontent.com/${OWNER}/${REPO}/${BRANCH}/${caminho}`;
 }
 
-function abrirEditar(id) {
-  if (precisaToken()) return;
-  const p = produtos.find(x => x.id === id);
-  if (!p) return;
-  editandoId = id;
-  document.getElementById('modalTitulo').textContent = 'Editar produto';
-  document.getElementById('fUrl').value = p.url;
-  document.getElementById('fNome').value = p.nome;
-  document.getElementById('fTipo').value = p.tipo || 'recorrente';
-  document.getElementById('fAlvo').value = p.preco_alvo ?? '';
-  document.getElementById('fImagemUrl').value = p.imagem ?? '';
-  document.getElementById('fImagemArquivo').value = '';
-  abrirModal('modalProduto');
-}
-
 async function salvarProduto() {
-  const url = document.getElementById('fUrl').value.trim();
   const nome = document.getElementById('fNome').value.trim();
   const tipo = document.getElementById('fTipo').value;
   const alvo = parseFloat(document.getElementById('fAlvo').value) || null;
-  if (!url || !url.startsWith('http')) return toast('Coloca o link do produto 🙂');
+  const lojas = lerLojasDoForm();
   if (!nome) return toast('Dá um nome pro produto 🙂');
+  if (!lojas.length) return toast('Coloca o link do produto em pelo menos uma loja 🙂');
 
   const btn = document.getElementById('btnSalvar');
   btn.disabled = true; btn.textContent = 'Salvando…';
@@ -401,13 +492,16 @@ async function salvarProduto() {
 
     let lista;
     if (editandoId) {
-      lista = produtos.map(p => p.id === editandoId ? { ...p, url, nome, tipo, preco_alvo: alvo, imagem: imagem ?? p.imagem ?? null } : p);
+      lista = produtos.map(p => p.id === editandoId
+        ? { ...p, nome, tipo, preco_alvo: alvo, lojas, imagem: imagem ?? p.imagem ?? null, url: undefined, loja: undefined }
+        : p);
     } else {
-      lista = [...produtos, { id, nome, url, loja: dominio(url), tipo, preco_alvo: alvo, imagem, ativo: true }];
+      lista = [...produtos, { id, nome, tipo, preco_alvo: alvo, imagem, ativo: true, lojas }];
     }
+    lista = lista.map(p => JSON.parse(JSON.stringify(p))); // remove undefined
     await salvarProdutosJson(lista, (editandoId ? 'editar' : 'adicionar') + ` produto: ${nome}`);
     fecharModais(); render();
-    toast(editandoId ? 'Produto atualizado ✅' : 'Produto adicionado ✅ A coleta do preço já foi disparada — dá refresh em ~1 min.');
+    toast(editandoId ? 'Produto atualizado ✅' : 'Produto adicionado ✅ A coleta já foi disparada — dá refresh em ~1 min.');
   } catch (e) { toast('Erro: ' + e.message); }
   btn.disabled = false; btn.textContent = 'Salvar';
 }
@@ -438,7 +532,7 @@ function removerToken() {
 // ------------------------------------------------------------------ helpers
 function abrirModal(id) { document.getElementById(id).classList.add('aberto'); }
 function fecharModais() { document.querySelectorAll('.modal-bg').forEach(m => m.classList.remove('aberto')); }
-function esc(s) { const d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
+function esc(s) { const d = document.createElement('div'); d.textContent = s ?? ''; return d.innerHTML; }
 function dominio(url) { try { return new URL(url).hostname.replace('www.', ''); } catch { return ''; } }
 function slug(s) {
   return s.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase()
@@ -450,7 +544,7 @@ function toast(msg) {
   const t = document.getElementById('toast');
   t.textContent = msg; t.style.display = 'block';
   clearTimeout(toastTimer);
-  toastTimer = setTimeout(() => t.style.display = 'none', 5000);
+  toastTimer = setTimeout(() => t.style.display = 'none', 6000);
 }
 
 document.getElementById('btnAdd').onclick = abrirAdd;

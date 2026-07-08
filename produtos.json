@@ -3,12 +3,16 @@
     {
       "id": "creamy-eye-cream",
       "nome": "Creme Clareador para Olhos - Eye Cream (Creamy)",
-      "url": "https://www.creamy.com.br/eye-cream/p",
-      "loja": "Creamy",
       "tipo": "recorrente",
       "preco_alvo": null,
       "ativo": true,
-      "imagem": "https://creamy.vteximg.com.br/arquivos/ids/158247/eye-cream-area-dos-olhos-olheiras-cinzinha-creamy-1.jpg?v=639072126867530000"
+      "imagem": "https://creamy.vteximg.com.br/arquivos/ids/158247/eye-cream-area-dos-olhos-olheiras-cinzinha-creamy-1.jpg?v=639072126867530000",
+      "lojas": [
+        {
+          "loja": "Creamy",
+          "url": "https://www.creamy.com.br/eye-cream/p"
+        }
+      ]
     }
   ]
 }
