@@ -40,11 +40,17 @@ UA = (
 )
 
 
-def buscar(url: str, timeout: int = 40) -> str:
+UA_MOBILE = (
+    "Mozilla/5.0 (iPhone; CPU iPhone OS 17_5 like Mac OS X) AppleWebKit/605.1.15 "
+    "(KHTML, like Gecko) Version/17.5 Mobile/15E148 Safari/604.1"
+)
+
+
+def buscar(url: str, timeout: int = 40, ua: str = None) -> str:
     req = urllib.request.Request(
         url,
         headers={
-            "User-Agent": UA,
+            "User-Agent": ua or UA,
             "Accept": "text/html,application/xhtml+xml,application/json;q=0.9,*/*;q=0.8",
             "Accept-Language": "pt-BR,pt;q=0.9,en;q=0.8",
             "Accept-Encoding": "gzip",
@@ -163,30 +169,36 @@ def preco_amazon(html: str):
         m = re.search(r'class="a-offscreen">\s*R\$(?:&nbsp;|\s)*([\d.,]+)', trecho)
         return normalizar_preco(m.group(1)) if m else None
 
+    def rx(padrao, h):
+        m = re.search(padrao, h, re.S)
+        return normalizar_preco(m.group(1)) if m else None
+
+    def core(h):
+        for marcador in ('id="corePriceDisplay', 'id="corePrice_feature_div"', 'id="apex_desktop"'):
+            i = h.find(marcador)
+            if i != -1:
+                p = offscreen(h[i:i + 4000])
+                if p:
+                    return p
+        return None
+
     estrategias = [
-        # 1) span oficial do "preco a pagar" (exclui preco por ml, preco riscado etc.)
-        lambda h: (lambda m: normalizar_preco(m.group(1)) if m else None)(
-            re.search(r'class="a-price[^"]*priceToPay[^"]*".{0,200}?class="a-offscreen">\s*R\$(?:&nbsp;|\s)*([\d.,]+)', h, re.S)),
-        # 2) JSON apexPriceToPay
-        lambda h: (lambda m: normalizar_preco(m.group(1)) if m else None)(
-            re.search(r'"apexPriceToPay".{0,120}?R\$\D{0,12}([\d.,]+)', h, re.S)),
-        # 3) JSON do buybox
-        lambda h: (lambda m: normalizar_preco(m.group(1)) if m else None)(
-            re.search(r'"desktop_buybox_group.{0,600}?"priceAmount"\s*:\s*([\d.]+)', h, re.S)),
-        # 4) primeiro preco visivel do bloco principal
-        lambda h: next((offscreen(h[i:i + 4000]) for marcador in
-                        ('id="corePriceDisplay', 'id="corePrice_feature_div"', 'id="apex_desktop"')
-                        if (i := h.find(marcador)) != -1 and offscreen(h[i:i + 4000])), None),
+        # bloco do preco principal (exclui patrocinados, que vem depois)
+        ("amazon-core", core),
+        # span oficial do "preco a pagar"
+        ("amazon-p2p", lambda h: rx(r'class="a-price[^"]*priceToPay[^"]*".{0,300}?class="a-offscreen">\s*R\$(?:&nbsp;|\s)*([\d.,]+)', h)),
+        # JSONs internos do buybox
+        ("amazon-apex", lambda h: rx(r'"apexPriceToPay".{0,120}?R\$\D{0,12}([\d.,]+)', h)),
+        ("amazon-json", lambda h: rx(r'"desktop_buybox_group.{0,600}?"priceAmount"\s*:\s*([\d.]+)', h)),
+        # primeiro preco visivel da pagina (na Amazon, e o do buy box)
+        ("amazon-1o", offscreen),
     ]
-    preco = None
-    for e in estrategias:
+    for tag, e in estrategias:
         preco = e(html)
         if preco:
-            break
-    if not preco:
-        return None
-    disp = ("add-to-cart-button" in html) or ("Em estoque" in html)
-    return preco, disp, "amazon"
+            disp = ("add-to-cart-button" in html) or ("Em estoque" in html)
+            return preco, disp, tag
+    return None
 
 
 def imagem_amazon(html: str):
@@ -271,13 +283,13 @@ def coletar_preco(url: str):
         estrategias.insert(0, preco_amazon)
 
     # Amazon as vezes serve uma versao da pagina sem o bloco de preco;
-    # tentar mais de uma vez resolve na maioria dos casos.
-    tentativas = 3 if eh_amazon else 1
+    # tentar mais de uma vez (alternando desktop/celular) resolve na maioria.
+    tentativas = 4 if eh_amazon else 1
     html = ""
     for t in range(tentativas):
         if t:
-            time.sleep(5)
-        html = buscar(url)
+            time.sleep(6)
+        html = buscar(url, ua=(UA_MOBILE if (eh_amazon and t % 2) else None))
         for estrategia in estrategias:
             r = estrategia(html)
             if r:
