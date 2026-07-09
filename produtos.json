@@ -69,7 +69,7 @@
       "nome": "Whey Adaptogen Chocomaltine (mensal)",
       "tipo": "recorrente",
       "preco_alvo": null,
-      "imagem": "https://m.media-amazon.com/images/I/715gLNqEfGL._AC_SL1215_.jpg",
+      "imagem": null,
       "ativo": true,
       "lojas": [
         {
@@ -98,7 +98,7 @@
       "lojas": [
         {
           "loja": "Mercado Livre",
-          "url": "https://www.mercadolivre.com.br/whey-protein-900g-100-whey-refil-max-titanium-cookies-and-cream-whey-concentrado/p/MLB18488790?pdp_filters=item_id:MLB4393440485"
+          "url": "https://www.mercadolivre.com.br/100-whey-refil-900g-protein-grow-thisoldie-max-titanium-sabor-baunilha/p/MLB46203215#polycard_client=search-desktop&be_origin=backend&search_layout=grid&position=7&type=product&tracking_id=045f94b1-536e-4886-8583-ad540a7238bd&wid=MLB5300804840&sid=search"
         }
       ]
     }
