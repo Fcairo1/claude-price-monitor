@@ -210,15 +210,20 @@ def escolher_preco(cands, referencia=None):
     if not cands:
         return None
     contagem = Counter(round(v, 2) for v, _ in cands)
+    FORTES = {"amazon-p2p", "amazon-json", "amazon-apex"}
+
+    def tem_fonte_forte(valor):
+        return any(t in FORTES for v, t in cands if round(v, 2) == round(valor, 2))
+
     if referencia:
         # 1) valor coerente com o historico (metade ao dobro da mediana)
         for v, tag in cands:
             if referencia * 0.5 <= v <= referencia * 2:
                 return v, tag
-        # 2) fora da faixa, so aceita se 2+ fontes da pagina confirmarem
+        # 2) fora da faixa, so aceita com 2+ fontes E pelo menos uma forte
         #    (ex.: promocao real de mais de 50%)
         for v, tag in cands:
-            if contagem[round(v, 2)] >= 2:
+            if contagem[round(v, 2)] >= 2 and tem_fonte_forte(v):
                 return v, tag
         # 3) nada confiavel: melhor falhar do que registrar preco errado
         return None
@@ -226,6 +231,20 @@ def escolher_preco(cands, referencia=None):
         if contagem[round(v, 2)] >= 2:
             return v, tag
     return cands[0]
+
+
+def url_amazon_canonica(url: str) -> str:
+    """
+    Reconstroi a URL com o ASIN + psc=1, que TRAVA a variacao exata do produto.
+    Sem isso a Amazon pode mostrar outra variacao (tamanho/pack) a cada acesso,
+    fazendo o preco 'pular' entre valores de produtos diferentes.
+    """
+    m = (re.search(r"/dp/([A-Z0-9]{10})", url, re.I)
+         or re.search(r"/gp/product/([A-Z0-9]{10})", url, re.I)
+         or re.search(r"\basin=([A-Z0-9]{10})", url, re.I))
+    if not m:
+        return url
+    return f"https://{urlsplit(url).netloc}/dp/{m.group(1).upper()}?psc=1&th=1"
 
 
 def imagem_amazon(html: str):
@@ -307,6 +326,8 @@ def coletar_preco(url: str, referencia=None):
         return r
 
     eh_amazon = "amazon." in urlsplit(url).netloc
+    if eh_amazon:
+        url = url_amazon_canonica(url)
 
     # Amazon as vezes serve uma versao da pagina sem o bloco de preco;
     # tentar mais de uma vez (alternando desktop/celular) resolve na maioria.
