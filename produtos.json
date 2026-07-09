@@ -87,6 +87,20 @@
           "preco": 162
         }
       ]
+    },
+    {
+      "id": "whey-concentrado-max-tit-baunilha",
+      "nome": "Whey Concentrado Max Tit Baunilha",
+      "tipo": "recorrente",
+      "preco_alvo": null,
+      "imagem": null,
+      "ativo": true,
+      "lojas": [
+        {
+          "loja": "Mercado Livre",
+          "url": "https://www.mercadolivre.com.br/whey-protein-900g-100-whey-refil-max-titanium-cookies-and-cream-whey-concentrado/p/MLB18488790?pdp_filters=item_id:MLB4393440485"
+        }
+      ]
     }
   ]
 }
