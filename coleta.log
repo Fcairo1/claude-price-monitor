@@ -1,7 +1,13 @@
+ERRO impressora-3d-bambu-lab-a1 @ Amazon: ValueError: nenhuma estrategia encontrou o preco (html 634699 chars; inicio: <!doctype html><html lang="pt-br" class="a-no-js" data-19ax5a9jf="dingo"><!-- sp:feature:head-start --> <head><script>var aPageStart = (new Date()).getTime();</script><meta charset="utf-8"/> <!-- sp:end-feature:head-start --> <!-- sp:feature:csm:head-open-part1 --> <script type='text/javascript'>var ue_t0=ue_t0||+new Date();</script> <!-- sp:end-feature:csm:head-open-part1 --> <!-- sp:feature:cs-optimization --> <meta http-equiv='x-dns-prefetch-control' content='on'> <link rel="preconnect" href="https://images-na.ssl-images-amazon.com" crossorigin> <link rel="preconnect" href="https://m.media-amazon.com" crossorigin> <!-- sp:end-feature:cs-optimization --> <!-- sp:feature:csm:head-open-part2 --> <script type='text/javascript'> window.ue_ihb = (window.ue_ihb || window.ueinit || 0) + 1; if )
+Traceback (most recent call last):
+  File "/home/runner/work/claude-price-monitor/claude-price-monitor/coletor.py", line 300, in main
+    preco, disponivel, fonte, imagem = coletar_preco(url)
+                                       ^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/claude-price-monitor/claude-price-monitor/coletor.py", line 278, in coletar_preco
+    raise ValueError(
+ValueError: nenhuma estrategia encontrou o preco (html 634699 chars; inicio: <!doctype html><html lang="pt-br" class="a-no-js" data-19ax5a9jf="dingo"><!-- sp:feature:head-start --> <head><script>var aPageStart = (new Date()).getTime();</script><meta charset="utf-8"/> <!-- sp:end-feature:head-start --> <!-- sp:feature:csm:head-open-part1 --> <script type='text/javascript'>var ue_t0=ue_t0||+new Date();</script> <!-- sp:end-feature:csm:head-open-part1 --> <!-- sp:feature:cs-optimization --> <meta http-equiv='x-dns-prefetch-control' content='on'> <link rel="preconnect" href="https://images-na.ssl-images-amazon.com" crossorigin> <link rel="preconnect" href="https://m.media-amazon.com" crossorigin> <!-- sp:end-feature:cs-optimization --> <!-- sp:feature:csm:head-open-part2 --> <script type='text/javascript'> window.ue_ihb = (window.ue_ihb || window.ueinit || 0) + 1; if )
 OK   creamy-eye-cream @ Creamy: R$ 136.83 (api-vtex)
-OK   creamy-eye-cream @ Amazon: R$ 133.46 (amazon)
-OK   impressora-3d-bambu-lab-a1 @ Amazon: R$ 5299.00 (amazon)
-IMG  fita-de-silicone-para-cicatriz: imagem encontrada automaticamente
-OK   fita-de-silicone-para-cicatriz @ Amazon: R$ 24.99 (amazon)
+OK   creamy-eye-cream @ Amazon: R$ 8.85 (amazon)
+OK   fita-de-silicone-para-cicatriz @ Amazon: R$ 54.27 (amazon)
 
-Coleta: 4 ok, 0 falha(s).
+Coleta: 3 ok, 1 falha(s).
