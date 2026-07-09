@@ -9,3 +9,7 @@ data,hora,produto_id,loja,preco,disponivel,fonte
 2026-07-09,08:53,creamy-eye-cream,Amazon,133.46,sim,amazon
 2026-07-09,12:39,creamy-eye-cream,Creamy,136.83,sim,api-vtex
 2026-07-09,12:39,impressora-3d-bambu-lab-a1,Amazon,5299.00,sim,amazon
+2026-07-09,12:43,creamy-eye-cream,Creamy,136.83,sim,api-vtex
+2026-07-09,12:43,creamy-eye-cream,Amazon,133.46,sim,amazon
+2026-07-09,12:43,impressora-3d-bambu-lab-a1,Amazon,5299.00,sim,amazon
+2026-07-09,12:43,fita-de-silicone-para-cicatriz,Amazon,24.99,sim,amazon
