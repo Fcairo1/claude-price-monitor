@@ -63,6 +63,20 @@
           "preco": 59.99
         }
       ]
+    },
+    {
+      "id": "whey-adaptogen-chocomaltine-mensal",
+      "nome": "Whey Adaptogen Chocomaltine (mensal)",
+      "tipo": "recorrente",
+      "preco_alvo": null,
+      "imagem": null,
+      "ativo": true,
+      "lojas": [
+        {
+          "loja": "Amazon",
+          "url": "https://www.amazon.com.br/dp/B0F22G5XXK?ref=ppx_yo2ov_dt_b_fed_asin_title"
+        }
+      ]
     }
   ]
 }
