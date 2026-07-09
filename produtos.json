@@ -31,6 +31,20 @@
           "url": "https://www.amazon.com.br/Impressora-Bambu-Lab-A1-Combo/dp/B0DD81K7V7?__mk_pt_BR=%C3%85M%C3%85%C5%BD%C3%95%C3%91&crid=1EJVLEEZU3JS5&dib=eyJ2IjoiMSJ9._mwuiDKI5EEQ8M301JPYn3qEFtF_vOtYNgCfdoUiqWg_wm23qF1uVpunp2eAJJaqHKR4iLqa7c-n_Ww_-_uhRk9ekcJaH1-B5dUoNUiuBbSpjzbtx0qeSWGSg1xBzZurTFpu2Ze-mROdYPfXj-E-ZBB-cv1JM_kK32QjfmJkAYlOfGLl0HaVynP6jjkDNezXn0WubCYtwsnPjBy-UJJfZLpZBY1WhmC_2BUPjyh5R02IJf2yX2XQ8Zx0zr4IodXePyPgAR1fEx42j-ukfTZHA8yql4jywsAq4s2bDAOU5AY.rYmRHzU5yw-K7ug5gWq6OvAC5DwYytBTyhkBq2aPTY4&dib_tag=se&keywords=bambu+lab+a1+combo&qid=1783611492&sprefix=bambu+lab+a1+combo%2Caps%2C224&sr=8-4&ufe=app_do%3Aamzn1.fos.95de73c3-5dda-43a7-bd1f-63af03b14751"
         }
       ]
+    },
+    {
+      "id": "fita-de-silicone-para-cicatriz",
+      "nome": "Fita de silicone para cicatriz",
+      "tipo": "recorrente",
+      "preco_alvo": null,
+      "imagem": null,
+      "ativo": true,
+      "lojas": [
+        {
+          "loja": "Amazon",
+          "url": "https://www.amazon.com.br/dp/B0G4WF68KJ?ref=ppx_yo2ov_dt_b_fed_asin_title"
+        }
+      ]
     }
   ]
 }
