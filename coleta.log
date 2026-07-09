@@ -1,20 +1,6 @@
-ERRO creamy-eye-cream @ Amazon: ValueError: nenhuma estrategia encontrou o preco (html 623709 chars; precos visiveis: []; inicio: <!doctype html><html lang="pt-br" class="a-no-js" data-19ax5a9jf="dingo"><!-- sp:feature:head-start --> <head><script>var aPageStart = (new Date()).getTime();</script><meta charset="utf-8"/> <!-- sp:end-feature:head-start --> <!-- sp:feature:csm:head-open-part1 --> <script type='text/javascript'>var ue_t0=ue_t0||+new Date();</script> <!-- sp:end-feature:csm:head-open-part1 --> <!-- sp:feature:cs-optimization --> <meta http-equiv='x-dns-prefetch-control' content='on'> <link rel="preconnect" href)
-Traceback (most recent call last):
-  File "/home/runner/work/claude-price-monitor/claude-price-monitor/coletor.py", line 315, in main
-    preco, disponivel, fonte, imagem = coletar_preco(url)
-                                       ^^^^^^^^^^^^^^^^^^
-  File "/home/runner/work/claude-price-monitor/claude-price-monitor/coletor.py", line 292, in coletar_preco
-    raise ValueError(
-ValueError: nenhuma estrategia encontrou o preco (html 623709 chars; precos visiveis: []; inicio: <!doctype html><html lang="pt-br" class="a-no-js" data-19ax5a9jf="dingo"><!-- sp:feature:head-start --> <head><script>var aPageStart = (new Date()).getTime();</script><meta charset="utf-8"/> <!-- sp:end-feature:head-start --> <!-- sp:feature:csm:head-open-part1 --> <script type='text/javascript'>var ue_t0=ue_t0||+new Date();</script> <!-- sp:end-feature:csm:head-open-part1 --> <!-- sp:feature:cs-optimization --> <meta http-equiv='x-dns-prefetch-control' content='on'> <link rel="preconnect" href)
-ERRO impressora-3d-bambu-lab-a1 @ Amazon: ValueError: nenhuma estrategia encontrou o preco (html 1200679 chars; precos visiveis: ['R$5.299,00', 'R$5.299,00', 'R$104,90', '$00', 'R$6.290,00', 'R$104,90', 'R$5.371,97', 'R$3.549,00']; inicio: <!doctype html><html lang="pt-br" class="a-no-js" data-19ax5a9jf="dingo"><!-- sp:feature:head-start --> <head><script>var aPageStart = (new Date()).getTime();</script><meta charset="utf-8"/> <!-- sp:end-feature:head-start --> <!-- sp:feature:csm:head-open-part1 --> <script type='text/javascript'>var ue_t0=ue_t0||+new Date();</script> <!-- sp:end-feature:csm:head-open-part1 --> <!-- sp:feature:cs-optimization --> <meta http-equiv='x-dns-prefetch-control' content='on'> <link rel="preconnect" href)
-Traceback (most recent call last):
-  File "/home/runner/work/claude-price-monitor/claude-price-monitor/coletor.py", line 315, in main
-    preco, disponivel, fonte, imagem = coletar_preco(url)
-                                       ^^^^^^^^^^^^^^^^^^
-  File "/home/runner/work/claude-price-monitor/claude-price-monitor/coletor.py", line 292, in coletar_preco
-    raise ValueError(
-ValueError: nenhuma estrategia encontrou o preco (html 1200679 chars; precos visiveis: ['R$5.299,00', 'R$5.299,00', 'R$104,90', '$00', 'R$6.290,00', 'R$104,90', 'R$5.371,97', 'R$3.549,00']; inicio: <!doctype html><html lang="pt-br" class="a-no-js" data-19ax5a9jf="dingo"><!-- sp:feature:head-start --> <head><script>var aPageStart = (new Date()).getTime();</script><meta charset="utf-8"/> <!-- sp:end-feature:head-start --> <!-- sp:feature:csm:head-open-part1 --> <script type='text/javascript'>var ue_t0=ue_t0||+new Date();</script> <!-- sp:end-feature:csm:head-open-part1 --> <!-- sp:feature:cs-optimization --> <meta http-equiv='x-dns-prefetch-control' content='on'> <link rel="preconnect" href)
 OK   creamy-eye-cream @ Creamy: R$ 136.83 (api-vtex)
-OK   fita-de-silicone-para-cicatriz @ Amazon: R$ 58.99 (amazon)
+OK   creamy-eye-cream @ Amazon: R$ 133.46 (amazon-1o)
+OK   impressora-3d-bambu-lab-a1 @ Amazon: R$ 5299.00 (amazon-core)
+OK   fita-de-silicone-para-cicatriz @ Amazon: R$ 54.27 (amazon-core)
 
-Coleta: 2 ok, 2 falha(s).
+Coleta: 4 ok, 0 falha(s).
