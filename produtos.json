@@ -76,6 +76,12 @@
           "loja": "Amazon",
           "url": "https://www.amazon.com.br/dp/B0F22G5XXK?ref=ppx_yo2ov_dt_b_fed_asin_title"
         }
+      ],
+      "compras": [
+        {
+          "data": "2026-06-17",
+          "preco": 167.9
+        }
       ]
     }
   ]
