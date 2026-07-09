@@ -209,11 +209,19 @@ def escolher_preco(cands, referencia=None):
     """
     if not cands:
         return None
-    if referencia:
-        for v, tag in cands:
-            if referencia * 0.25 <= v <= referencia * 4:
-                return v, tag
     contagem = Counter(round(v, 2) for v, _ in cands)
+    if referencia:
+        # 1) valor coerente com o historico (metade ao dobro da mediana)
+        for v, tag in cands:
+            if referencia * 0.5 <= v <= referencia * 2:
+                return v, tag
+        # 2) fora da faixa, so aceita se 2+ fontes da pagina confirmarem
+        #    (ex.: promocao real de mais de 50%)
+        for v, tag in cands:
+            if contagem[round(v, 2)] >= 2:
+                return v, tag
+        # 3) nada confiavel: melhor falhar do que registrar preco errado
+        return None
     for v, tag in cands:
         if contagem[round(v, 2)] >= 2:
             return v, tag
@@ -329,6 +337,11 @@ def coletar_preco(url: str, referencia=None):
     if "suspicious-traffic" in html or "account-verification" in html:
         raise ValueError("a loja bloqueou o acesso do robo (pagina anti-bot)")
     candidatos = re.findall(r'class="a-offscreen">([^<]{0,25})', html)[:8]
+    if eh_amazon and candidatos and referencia:
+        raise ValueError(
+            f"precos na pagina nao batem com o historico (mediana R$ {referencia:.2f}) "
+            f"e nao houve confirmacao — nada registrado. Vistos: {candidatos}"
+        )
     amostra = re.sub(r"\s+", " ", html[:500])
     raise ValueError(
         f"nenhuma estrategia encontrou o preco (html {len(html)} chars; "
