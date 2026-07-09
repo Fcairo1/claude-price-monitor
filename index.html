@@ -78,6 +78,7 @@
     <h1>📉 Monitor de <span>Preços</span></h1>
     <div style="display:flex; gap:8px;">
       <button class="btn" id="btnToken" title="Configurar token do GitHub">⚙️</button>
+      <button class="btn" id="btnColetar" title="Buscar os preços agora, sem esperar a coleta diária">🔄 Coletar agora</button>
       <button class="btn primary" id="btnAdd">+ Adicionar produto</button>
     </div>
   </header>
@@ -134,7 +135,8 @@
       (fica salvo só neste navegador). Crie em
       <a href="https://github.com/settings/personal-access-tokens/new" target="_blank">github.com/settings/personal-access-tokens/new</a>:
       Repository access → <b>Only select repositories</b> → <b>claude-price-monitor</b>;
-      Permissions → <b>Contents: Read and write</b>. Expiração de até 1 ano.
+      Permissions → <b>Contents: Read and write</b> e <b>Actions: Read and write</b> (essa segunda é pro botão "Coletar agora").
+      Expiração: pode escolher "No expiration".
     </p>
     <div class="campo">
       <label>Cole o token</label>
@@ -516,6 +518,32 @@ async function removerProduto(id) {
   } catch (e) { toast('Erro: ' + e.message); }
 }
 
+// ------------------------------------------------------------ coletar agora
+async function coletarAgora() {
+  if (precisaToken()) return;
+  const btn = document.getElementById('btnColetar');
+  btn.disabled = true; btn.textContent = '⏳ Coletando…';
+  try {
+    const r = await fetch(`https://api.github.com/repos/${OWNER}/${REPO}/actions/workflows/coleta.yml/dispatches`, {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${getToken()}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ ref: BRANCH })
+    });
+    if (r.status === 204) {
+      toast('Coleta disparada! Os preços novos aparecem aqui em ~1 minuto.');
+      setTimeout(async () => { await carregar(); toast('Preços atualizados ✅'); btn.disabled = false; btn.textContent = '🔄 Coletar agora'; }, 75000);
+      return;
+    }
+    if (r.status === 403 || r.status === 404) {
+      throw new Error('seu token precisa também da permissão "Actions: Read and write" pra usar este botão — edite o token no GitHub ou crie um novo.');
+    }
+    throw new Error('falha ao disparar (' + r.status + ')');
+  } catch (e) {
+    toast('Erro: ' + e.message);
+    btn.disabled = false; btn.textContent = '🔄 Coletar agora';
+  }
+}
+
 // ------------------------------------------------------------------- token
 function salvarToken() {
   const t = document.getElementById('fToken').value.trim();
@@ -549,6 +577,7 @@ function toast(msg) {
 
 document.getElementById('btnAdd').onclick = abrirAdd;
 document.getElementById('btnToken').onclick = () => abrirModal('modalToken');
+document.getElementById('btnColetar').onclick = coletarAgora;
 document.getElementById('btnSalvar').onclick = salvarProduto;
 document.querySelectorAll('.modal-bg').forEach(m =>
   m.addEventListener('click', e => { if (e.target === m) fecharModais(); }));
