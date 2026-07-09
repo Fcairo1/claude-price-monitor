@@ -195,6 +195,16 @@ def preco_amazon(html: str):
     if m and normalizar_preco(m.group(1)):
         cands.append((normalizar_preco(m.group(1)), "amazon-apex"))
 
+    # fallback (layouts mobile/alternativos): qualquer preco visivel na pagina,
+    # na ordem em que aparecem — a validacao por historico filtra os errados
+    if not cands:
+        for m in re.finditer(r'class="a-offscreen">\s*R\$(?:&nbsp;|\s)*([\d.,]+)', html):
+            v = normalizar_preco(m.group(1))
+            if v:
+                cands.append((v, "amazon-vis"))
+            if len(cands) >= 6:
+                break
+
     prioridade = {"amazon-p2p": 0, "amazon-json": 1, "amazon-apex": 2, "amazon-vis": 3}
     cands.sort(key=lambda c: prioridade[c[1]])
     return cands
