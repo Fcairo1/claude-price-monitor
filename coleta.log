@@ -1,16 +1,18 @@
-ERRO whey-concentrado-max-tit-baunilha @ Mercado Livre: ValueError: nenhuma estrategia encontrou o preco (html 35707 chars; precos visiveis: []; inicio: <!DOCTYPE html><html lang="pt-BR" data-assets-prefix="https://http2.mlstatic.com/frontend-assets/suspicious-traffic-frontend/"><head><meta charSet="utf-8"/><link rel="preconnect" href="https://http2.mlstatic.com" crossorigin=""/><meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0"/><link href="https://http2.mlstatic.com/frontend-assets/suspicious-traffic-frontend/gz-account-verification-index.309e72b8.css" fetchPriority="high" crossorigin="anonymous" rel="styl)
+ERRO whey-concentrado-max-tit-baunilha @ Mercado Livre: ValueError: nenhuma estrategia encontrou o preco (html 58183 chars; precos visiveis: []; inicio: <!DOCTYPE html><html lang="pt-BR" data-assets-prefix="https://http2.mlstatic.com/frontend-assets/abuse-captcha-mobile-frontend/"><head><meta charSet="utf-8"/><link rel="preconnect" href="https://http2.mlstatic.com" crossorigin=""/><meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0"/><link href="https://http2.mlstatic.com/frontend-assets/abuse-captcha-mobile-frontend/captcha-wall-index.84cc87ed.css" fetchPriority="high" crossorigin="anonymous" rel="stylesheet")
 Traceback (most recent call last):
   File "/home/runner/work/claude-price-monitor/claude-price-monitor/coletor.py", line 327, in main
     preco, disponivel, fonte, imagem = coletar_preco(url)
                                        ^^^^^^^^^^^^^^^^^^
   File "/home/runner/work/claude-price-monitor/claude-price-monitor/coletor.py", line 304, in coletar_preco
     raise ValueError(
-ValueError: nenhuma estrategia encontrou o preco (html 35707 chars; precos visiveis: []; inicio: <!DOCTYPE html><html lang="pt-BR" data-assets-prefix="https://http2.mlstatic.com/frontend-assets/suspicious-traffic-frontend/"><head><meta charSet="utf-8"/><link rel="preconnect" href="https://http2.mlstatic.com" crossorigin=""/><meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0"/><link href="https://http2.mlstatic.com/frontend-assets/suspicious-traffic-frontend/gz-account-verification-index.309e72b8.css" fetchPriority="high" crossorigin="anonymous" rel="styl)
+ValueError: nenhuma estrategia encontrou o preco (html 58183 chars; precos visiveis: []; inicio: <!DOCTYPE html><html lang="pt-BR" data-assets-prefix="https://http2.mlstatic.com/frontend-assets/abuse-captcha-mobile-frontend/"><head><meta charSet="utf-8"/><link rel="preconnect" href="https://http2.mlstatic.com" crossorigin=""/><meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0"/><link href="https://http2.mlstatic.com/frontend-assets/abuse-captcha-mobile-frontend/captcha-wall-index.84cc87ed.css" fetchPriority="high" crossorigin="anonymous" rel="stylesheet")
 OK   creamy-eye-cream @ Creamy: R$ 136.83 (api-vtex)
-OK   creamy-eye-cream @ Amazon: R$ 8.85 (amazon-core)
+OK   creamy-eye-cream @ Amazon: R$ 133.46 (amazon-1o)
 OK   impressora-3d-bambu-lab-a1 @ Amazon: R$ 5299.00 (amazon-1o)
 OK   fita-de-silicone-para-cicatriz @ Amazon: R$ 54.27 (amazon-core)
 IMG  whey-adaptogen-chocomaltine-mensal: imagem encontrada automaticamente
-OK   whey-adaptogen-chocomaltine-mensal @ Amazon: R$ 0.19 (amazon-core)
+OK   whey-adaptogen-chocomaltine-mensal @ Amazon: R$ 169.90 (amazon-1o)
+IMG  whey-concentrado-max-tit-baunilha: imagem encontrada automaticamente
+OK   whey-concentrado-max-tit-baunilha @ Amazon: R$ 0.14 (amazon-1o)
 
-Coleta: 5 ok, 1 falha(s).
+Coleta: 6 ok, 1 falha(s).

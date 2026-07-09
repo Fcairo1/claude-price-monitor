@@ -69,7 +69,7 @@
       "nome": "Whey Adaptogen Chocomaltine (mensal)",
       "tipo": "recorrente",
       "preco_alvo": null,
-      "imagem": null,
+      "imagem": "https://m.media-amazon.com/images/I/715gLNqEfGL._AC_SL1215_.jpg",
       "ativo": true,
       "lojas": [
         {
@@ -93,7 +93,7 @@
       "nome": "Whey Concentrado Max Tit Baunilha - Sorvete",
       "tipo": "recorrente",
       "preco_alvo": null,
-      "imagem": null,
+      "imagem": "https://m.media-amazon.com/images/I/51I4Y7WH8PL._AC_SL1080_.jpg",
       "ativo": true,
       "lojas": [
         {
