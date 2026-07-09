@@ -69,7 +69,7 @@
       "nome": "Whey Adaptogen Chocomaltine (mensal)",
       "tipo": "recorrente",
       "preco_alvo": null,
-      "imagem": "https://m.media-amazon.com/images/I/715gLNqEfGL._AC_SL1215_.jpg",
+      "imagem": null,
       "ativo": true,
       "lojas": [
         {
@@ -99,6 +99,10 @@
         {
           "loja": "Mercado Livre",
           "url": "https://www.mercadolivre.com.br/100-whey-refil-900g-protein-grow-thisoldie-max-titanium-sabor-baunilha/p/MLB46203215#polycard_client=search-desktop&be_origin=backend&search_layout=grid&position=7&type=product&tracking_id=045f94b1-536e-4886-8583-ad540a7238bd&wid=MLB5300804840&sid=search"
+        },
+        {
+          "loja": "Amazon",
+          "url": "https://www.amazon.com.br/100-Whey-Refil-900G-Baunilha/dp/B09473M9Q5?__mk_pt_BR=%C3%85M%C3%85%C5%BD%C3%95%C3%91&crid=328KCTKJTZ28T&dib=eyJ2IjoiMSJ9.fQLEXbDLyr5nWzFKMqunrOjoWHAQJUeStYse2FKgPcuTvVBJ3ZAkrukgPhurjdpxBcBgMphikVR93t8GqxmXB5Ci_IN892dG68f2sfWLwwre2JUx3c4ZmWvW99_c2Pzzvpm65wCark0WzyDaqDjlWyO4fzWfna8gqifFp4jzJNH2AghLrl1Pzng0dEM3nPhthujg86RXq5bWWvgMSBkCmgC5TI0sqnRA6wOLxlQjy8zYpktHVd9dhRccyIruCeZHItaUvmkJzu7X1Thi06g0GNB4M5hpLMeeKcPcpe7TYx0.8FSqH9t_sktHtOXj_XkX26Gnb6HdFPaMyRZ0p51j_u0&dib_tag=se&keywords=100%25+Whey+Refil+900g+Protein+baunilha&qid=1783613276&sprefix=100+whey+refil+900g+protein+baunil%2Caps%2C214&sr=8-6"
         }
       ]
     }
