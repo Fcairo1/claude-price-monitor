@@ -69,7 +69,7 @@
       "nome": "Whey Adaptogen Chocomaltine (mensal)",
       "tipo": "recorrente",
       "preco_alvo": null,
-      "imagem": "https://m.media-amazon.com/images/I/715gLNqEfGL._AC_SL1215_.jpg",
+      "imagem": null,
       "ativo": true,
       "lojas": [
         {
@@ -81,6 +81,10 @@
         {
           "data": "2026-06-17",
           "preco": 167.9
+        },
+        {
+          "data": "2026-05-21",
+          "preco": 162
         }
       ]
     }
