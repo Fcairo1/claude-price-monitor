@@ -19,6 +19,7 @@ import gzip
 import json
 import re
 import sys
+import time
 import traceback
 import urllib.request
 import urllib.error
@@ -154,31 +155,34 @@ def preco_meta(html: str):
 
 def preco_amazon(html: str):
     """
-    Amazon usa formato proprio. A pagina traz varios precos (variacoes de
-    tamanho, ofertas de outros vendedores, patrocinados), entao e preciso
-    olhar apenas dentro do "buy box" (bloco do preco principal).
+    Amazon usa formato proprio. A pagina traz varios precos (variacoes,
+    preco por unidade/ml, ofertas de terceiros, patrocinados), entao a
+    ordem de busca mira no elemento exato do "preco a pagar" do buy box.
     """
     def offscreen(trecho):
         m = re.search(r'class="a-offscreen">\s*R\$(?:&nbsp;|\s)*([\d.,]+)', trecho)
         return normalizar_preco(m.group(1)) if m else None
 
+    estrategias = [
+        # 1) span oficial do "preco a pagar" (exclui preco por ml, preco riscado etc.)
+        lambda h: (lambda m: normalizar_preco(m.group(1)) if m else None)(
+            re.search(r'class="a-price[^"]*priceToPay[^"]*".{0,200}?class="a-offscreen">\s*R\$(?:&nbsp;|\s)*([\d.,]+)', h, re.S)),
+        # 2) JSON apexPriceToPay
+        lambda h: (lambda m: normalizar_preco(m.group(1)) if m else None)(
+            re.search(r'"apexPriceToPay".{0,120}?R\$\D{0,12}([\d.,]+)', h, re.S)),
+        # 3) JSON do buybox
+        lambda h: (lambda m: normalizar_preco(m.group(1)) if m else None)(
+            re.search(r'"desktop_buybox_group.{0,600}?"priceAmount"\s*:\s*([\d.]+)', h, re.S)),
+        # 4) primeiro preco visivel do bloco principal
+        lambda h: next((offscreen(h[i:i + 4000]) for marcador in
+                        ('id="corePriceDisplay', 'id="corePrice_feature_div"', 'id="apex_desktop"')
+                        if (i := h.find(marcador)) != -1 and offscreen(h[i:i + 4000])), None),
+    ]
     preco = None
-    # 1) blocos do preco principal, na ordem de confianca
-    for marcador in ('id="corePriceDisplay', 'id="corePrice_feature_div"', 'id="apex_desktop"'):
-        i = html.find(marcador)
-        if i != -1:
-            preco = offscreen(html[i:i + 4000])
-            if preco:
-                break
-    # 2) JSON do buybox restrito a area do preco principal
-    if not preco:
-        i = html.find('"desktop_buybox_group')
-        area = html[i:i + 4000] if i != -1 else html
-        m = re.search(r'"priceAmount"\s*:\s*([\d.]+)', area)
-        preco = normalizar_preco(m.group(1)) if m else None
-    # 3) ultimo recurso: primeiro a-offscreen da pagina
-    if not preco:
-        preco = offscreen(html)
+    for e in estrategias:
+        preco = e(html)
+        if preco:
+            break
     if not preco:
         return None
     disp = ("add-to-cart-button" in html) or ("Em estoque" in html)
@@ -262,21 +266,32 @@ def coletar_preco(url: str):
         return r
 
     eh_amazon = "amazon." in urlsplit(url).netloc
-    html = buscar(url)
     estrategias = [preco_jsonld, preco_meta, preco_generico]
     if eh_amazon:
         estrategias.insert(0, preco_amazon)
-    for estrategia in estrategias:
-        r = estrategia(html)
-        if r:
-            preco, disp, fonte = r
-            imagem = imagem_de_html(html)
-            if eh_amazon:
-                imagem = imagem_amazon(html) or imagem
-            return preco, disp, fonte, imagem
-    amostra = re.sub(r"\s+", " ", html[:800])
+
+    # Amazon as vezes serve uma versao da pagina sem o bloco de preco;
+    # tentar mais de uma vez resolve na maioria dos casos.
+    tentativas = 3 if eh_amazon else 1
+    html = ""
+    for t in range(tentativas):
+        if t:
+            time.sleep(5)
+        html = buscar(url)
+        for estrategia in estrategias:
+            r = estrategia(html)
+            if r:
+                preco, disp, fonte = r
+                imagem = imagem_de_html(html)
+                if eh_amazon:
+                    imagem = imagem_amazon(html) or imagem
+                return preco, disp, fonte, imagem
+
+    candidatos = re.findall(r'class="a-offscreen">([^<]{0,25})', html)[:8]
+    amostra = re.sub(r"\s+", " ", html[:500])
     raise ValueError(
-        f"nenhuma estrategia encontrou o preco (html {len(html)} chars; inicio: {amostra})"
+        f"nenhuma estrategia encontrou o preco (html {len(html)} chars; "
+        f"precos visiveis: {candidatos}; inicio: {amostra})"
     )
 
 
