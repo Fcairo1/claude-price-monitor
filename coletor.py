@@ -18,9 +18,11 @@ import csv
 import gzip
 import json
 import re
+import statistics
 import sys
 import time
 import traceback
+from collections import Counter
 import urllib.request
 import urllib.error
 from urllib.parse import urlsplit
@@ -169,36 +171,53 @@ def preco_amazon(html: str):
         m = re.search(r'class="a-offscreen">\s*R\$(?:&nbsp;|\s)*([\d.,]+)', trecho)
         return normalizar_preco(m.group(1)) if m else None
 
-    def rx(padrao, h):
-        m = re.search(padrao, h, re.S)
-        return normalizar_preco(m.group(1)) if m else None
+    # Coleta VARIOS candidatos e depois escolhe o mais confiavel.
+    cands = []
 
-    def core(h):
-        for marcador in ('id="corePriceDisplay', 'id="corePrice_feature_div"', 'id="apex_desktop"'):
-            i = h.find(marcador)
-            if i != -1:
-                p = offscreen(h[i:i + 4000])
-                if p:
-                    return p
+    # precos visiveis, com a classe do container (que revela o tipo de preco)
+    for m in re.finditer(
+        r'<span class="a-price([^"]*)"[^>]*>.{0,150}?class="a-offscreen">\s*R\$(?:&nbsp;|\s)*([\d.,]+)',
+        html, re.S,
+    ):
+        cls, v = m.group(1), normalizar_preco(m.group(2))
+        if not v:
+            continue
+        # descarta preco por unidade (R$/ml, R$/g) e preco riscado "de:"
+        if "pricePerUnit" in cls or "a-text-price" in cls:
+            continue
+        cands.append((v, "amazon-p2p" if "priceToPay" in cls else "amazon-vis"))
+
+    # JSONs internos do buybox
+    m = re.search(r'"desktop_buybox_group.{0,600}?"priceAmount"\s*:\s*([\d.]+)', html, re.S)
+    if m and normalizar_preco(m.group(1)):
+        cands.append((normalizar_preco(m.group(1)), "amazon-json"))
+    m = re.search(r'"apexPriceToPay".{0,120}?R\$\D{0,12}([\d.,]+)', html, re.S)
+    if m and normalizar_preco(m.group(1)):
+        cands.append((normalizar_preco(m.group(1)), "amazon-apex"))
+
+    prioridade = {"amazon-p2p": 0, "amazon-json": 1, "amazon-apex": 2, "amazon-vis": 3}
+    cands.sort(key=lambda c: prioridade[c[1]])
+    return cands
+
+
+def escolher_preco(cands, referencia=None):
+    """
+    Escolhe o candidato mais confiavel:
+      1. coerente com o historico do produto (entre 25% e 400% da mediana);
+      2. senao, valor confirmado por 2+ fontes da pagina (consenso);
+      3. senao, o de maior prioridade.
+    """
+    if not cands:
         return None
-
-    estrategias = [
-        # bloco do preco principal (exclui patrocinados, que vem depois)
-        ("amazon-core", core),
-        # span oficial do "preco a pagar"
-        ("amazon-p2p", lambda h: rx(r'class="a-price[^"]*priceToPay[^"]*".{0,300}?class="a-offscreen">\s*R\$(?:&nbsp;|\s)*([\d.,]+)', h)),
-        # JSONs internos do buybox
-        ("amazon-apex", lambda h: rx(r'"apexPriceToPay".{0,120}?R\$\D{0,12}([\d.,]+)', h)),
-        ("amazon-json", lambda h: rx(r'"desktop_buybox_group.{0,600}?"priceAmount"\s*:\s*([\d.]+)', h)),
-        # primeiro preco visivel da pagina (na Amazon, e o do buy box)
-        ("amazon-1o", offscreen),
-    ]
-    for tag, e in estrategias:
-        preco = e(html)
-        if preco:
-            disp = ("add-to-cart-button" in html) or ("Em estoque" in html)
-            return preco, disp, tag
-    return None
+    if referencia:
+        for v, tag in cands:
+            if referencia * 0.25 <= v <= referencia * 4:
+                return v, tag
+    contagem = Counter(round(v, 2) for v, _ in cands)
+    for v, tag in cands:
+        if contagem[round(v, 2)] >= 2:
+            return v, tag
+    return cands[0]
 
 
 def imagem_amazon(html: str):
@@ -267,7 +286,9 @@ def lojas_de(produto: dict):
     return []
 
 
-def coletar_preco(url: str):
+def coletar_preco(url: str, referencia=None):
+    """referencia = mediana dos ultimos precos conhecidos deste produto/loja,
+    usada como validacao de sanidade contra leituras erradas."""
     if "mercadolivre.com" in url or "mercadolibre.com" in url:
         r = preco_mercado_livre(url)
         if r:
@@ -278,9 +299,6 @@ def coletar_preco(url: str):
         return r
 
     eh_amazon = "amazon." in urlsplit(url).netloc
-    estrategias = [preco_jsonld, preco_meta, preco_generico]
-    if eh_amazon:
-        estrategias.insert(0, preco_amazon)
 
     # Amazon as vezes serve uma versao da pagina sem o bloco de preco;
     # tentar mais de uma vez (alternando desktop/celular) resolve na maioria.
@@ -290,15 +308,26 @@ def coletar_preco(url: str):
         if t:
             time.sleep(6)
         html = buscar(url, ua=(UA_MOBILE if (eh_amazon and t % 2) else None))
-        for estrategia in estrategias:
+
+        if eh_amazon:
+            escolha = escolher_preco(preco_amazon(html), referencia)
+            if escolha:
+                preco, tag = escolha
+                disp = ("add-to-cart-button" in html) or ("Em estoque" in html)
+                return preco, disp, tag, imagem_amazon(html) or imagem_de_html(html)
+            continue
+
+        for estrategia in (preco_jsonld, preco_meta, preco_generico):
             r = estrategia(html)
             if r:
                 preco, disp, fonte = r
-                imagem = imagem_de_html(html)
-                if eh_amazon:
-                    imagem = imagem_amazon(html) or imagem
-                return preco, disp, fonte, imagem
+                # validacao de sanidade tambem fora da Amazon
+                if referencia and not (referencia * 0.25 <= preco <= referencia * 4):
+                    continue
+                return preco, disp, fonte, imagem_de_html(html)
 
+    if "suspicious-traffic" in html or "account-verification" in html:
+        raise ValueError("a loja bloqueou o acesso do robo (pagina anti-bot)")
     candidatos = re.findall(r'class="a-offscreen">([^<]{0,25})', html)[:8]
     amostra = re.sub(r"\s+", " ", html[:500])
     raise ValueError(
@@ -321,10 +350,23 @@ def main() -> int:
     linhas, falhas = [], []
     produtos_alterados = False
 
+    # mediana dos ultimos precos por (produto, loja) — referencia de sanidade
+    referencias = {}
+    if ARQ_HISTORICO.exists():
+        grupos = {}
+        with ARQ_HISTORICO.open(encoding="utf-8") as f:
+            for row in csv.DictReader(f):
+                try:
+                    grupos.setdefault((row["produto_id"], row.get("loja", "")), []).append(float(row["preco"]))
+                except (ValueError, KeyError):
+                    pass
+        referencias = {k: statistics.median(v[-7:]) for k, v in grupos.items()}
+
     for p in ativos:
         for nome_loja, url in lojas_de(p):
             try:
-                preco, disponivel, fonte, imagem = coletar_preco(url)
+                ref = referencias.get((p["id"], nome_loja))
+                preco, disponivel, fonte, imagem = coletar_preco(url, ref)
                 if imagem and not p.get("imagem"):
                     p["imagem"] = imagem
                     produtos_alterados = True
