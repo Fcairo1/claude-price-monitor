@@ -153,12 +153,32 @@ def preco_meta(html: str):
 
 
 def preco_amazon(html: str):
-    """Amazon usa formato proprio: JSON do buybox ou span a-offscreen."""
-    m = re.search(r'"priceAmount"\s*:\s*([\d.]+)', html)
-    preco = normalizar_preco(m.group(1)) if m else None
+    """
+    Amazon usa formato proprio. A pagina traz varios precos (variacoes de
+    tamanho, ofertas de outros vendedores, patrocinados), entao e preciso
+    olhar apenas dentro do "buy box" (bloco do preco principal).
+    """
+    def offscreen(trecho):
+        m = re.search(r'class="a-offscreen">\s*R\$(?:&nbsp;|\s)*([\d.,]+)', trecho)
+        return normalizar_preco(m.group(1)) if m else None
+
+    preco = None
+    # 1) blocos do preco principal, na ordem de confianca
+    for marcador in ('id="corePriceDisplay', 'id="corePrice_feature_div"', 'id="apex_desktop"'):
+        i = html.find(marcador)
+        if i != -1:
+            preco = offscreen(html[i:i + 4000])
+            if preco:
+                break
+    # 2) JSON do buybox restrito a area do preco principal
     if not preco:
-        m = re.search(r'class="a-offscreen">\s*R\$\s*&?n?b?s?p?;?\s*([\d.,]+)', html)
+        i = html.find('"desktop_buybox_group')
+        area = html[i:i + 4000] if i != -1 else html
+        m = re.search(r'"priceAmount"\s*:\s*([\d.]+)', area)
         preco = normalizar_preco(m.group(1)) if m else None
+    # 3) ultimo recurso: primeiro a-offscreen da pagina
+    if not preco:
+        preco = offscreen(html)
     if not preco:
         return None
     disp = ("add-to-cart-button" in html) or ("Em estoque" in html)
