@@ -1,3 +1,11 @@
+ERRO fita-de-silicone-para-cicatriz @ Amazon: ValueError: nenhuma estrategia encontrou o preco (html 785098 chars; precos visiveis: []; inicio: <!doctype html><html lang="pt-br" class="a-no-js a-touch a-mobile" data-19ax5a9jf="mongoose"><!-- sp:feature:head-start --> <head><script>var aPageStart = (new Date()).getTime();</script><meta name="viewport" content="width=device-width, maximum-scale=2, minimum-scale=1, initial-scale=1, shrink-to-fit=no"/><meta charset="utf-8"/> <!-- sp:end-feature:head-start --> <!-- sp:feature:csm:head-open-part1 --> <script type='text/javascript'>var ue_t0=ue_t0||+new Date();</script> <!-- sp:end-feature:cs)
+Traceback (most recent call last):
+  File "/home/runner/work/claude-price-monitor/claude-price-monitor/coletor.py", line 413, in main
+    preco, disponivel, fonte, imagem = coletar_preco(url, ref)
+                                       ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/claude-price-monitor/claude-price-monitor/coletor.py", line 377, in coletar_preco
+    raise ValueError(
+ValueError: nenhuma estrategia encontrou o preco (html 785098 chars; precos visiveis: []; inicio: <!doctype html><html lang="pt-br" class="a-no-js a-touch a-mobile" data-19ax5a9jf="mongoose"><!-- sp:feature:head-start --> <head><script>var aPageStart = (new Date()).getTime();</script><meta name="viewport" content="width=device-width, maximum-scale=2, minimum-scale=1, initial-scale=1, shrink-to-fit=no"/><meta charset="utf-8"/> <!-- sp:end-feature:head-start --> <!-- sp:feature:csm:head-open-part1 --> <script type='text/javascript'>var ue_t0=ue_t0||+new Date();</script> <!-- sp:end-feature:cs)
 ERRO whey-concentrado-max-tit-baunilha @ Mercado Livre: ValueError: a loja bloqueou o acesso do robo (pagina anti-bot)
 Traceback (most recent call last):
   File "/home/runner/work/claude-price-monitor/claude-price-monitor/coletor.py", line 413, in main
@@ -8,9 +16,8 @@ Traceback (most recent call last):
 ValueError: a loja bloqueou o acesso do robo (pagina anti-bot)
 OK   creamy-eye-cream @ Creamy: R$ 136.83 (api-vtex)
 OK   creamy-eye-cream @ Amazon: R$ 116.31 (amazon-json)
-OK   impressora-3d-bambu-lab-a1 @ Amazon: R$ 5034.00 (amazon-json)
-OK   fita-de-silicone-para-cicatriz @ Amazon: R$ 58.99 (amazon-json)
-OK   whey-adaptogen-chocomaltine-mensal @ Amazon: R$ 169.90 (amazon-vis)
+OK   impressora-3d-bambu-lab-a1 @ Amazon: R$ 5299.00 (amazon-vis)
+OK   whey-adaptogen-chocomaltine-mensal @ Amazon: R$ 172.00 (amazon-json)
 OK   whey-concentrado-max-tit-baunilha @ Amazon: R$ 129.90 (amazon-json)
 
-Coleta: 6 ok, 1 falha(s).
+Coleta: 5 ok, 2 falha(s).
