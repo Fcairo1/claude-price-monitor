@@ -124,3 +124,9 @@ data,hora,produto_id,loja,preco,disponivel,fonte
 2026-07-15,07:45,impressora-3d-bambu-lab-a1,Amazon,5034.00,sim,amazon-json
 2026-07-15,07:45,whey-adaptogen-chocomaltine-mensal,Amazon,169.90,sim,amazon-vis
 2026-07-15,07:45,whey-concentrado-max-tit-baunilha,Amazon,129.90,sim,amazon-json
+2026-07-16,07:55,creamy-eye-cream,Creamy,136.83,sim,api-vtex
+2026-07-16,07:55,creamy-eye-cream,Amazon,116.37,sim,amazon-vis
+2026-07-16,07:55,impressora-3d-bambu-lab-a1,Amazon,5034.00,sim,amazon-vis
+2026-07-16,07:55,fita-de-silicone-para-cicatriz,Amazon,62.99,sim,amazon-vis
+2026-07-16,07:55,whey-adaptogen-chocomaltine-mensal,Amazon,165.00,sim,amazon-vis
+2026-07-16,07:55,whey-concentrado-max-tit-baunilha,Amazon,129.00,sim,amazon-vis
