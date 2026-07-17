@@ -115,12 +115,26 @@
       "nome": "Corsário Maison Viegas",
       "tipo": "futura",
       "preco_alvo": null,
-      "imagem": "http://acdn-us.mitiendanube.com/stores/002/823/151/products/corsario-fffinal-c605856d3e74ad2a9d17653876503558-640-0.webp",
+      "imagem": null,
       "ativo": true,
       "lojas": [
         {
           "loja": "maisonviegas.com.br",
           "url": "https://maisonviegas.com.br/produtos/corsario-inspirado-em-le-male/"
+        }
+      ]
+    },
+    {
+      "id": "spartan-elixir",
+      "nome": "Spartan Elixir",
+      "tipo": "recorrente",
+      "preco_alvo": null,
+      "imagem": null,
+      "ativo": true,
+      "lojas": [
+        {
+          "loja": "maisonviegas.com.br",
+          "url": "https://maisonviegas.com.br/produtos/spartan-elixir-inspirado-em-invictus-victory-elixir/"
         }
       ]
     }
