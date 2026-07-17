@@ -109,6 +109,20 @@
           "url": "https://www.amazon.com.br/100-Whey-Refil-900G-Baunilha/dp/B09473M9Q5?__mk_pt_BR=%C3%85M%C3%85%C5%BD%C3%95%C3%91&crid=328KCTKJTZ28T&dib=eyJ2IjoiMSJ9.fQLEXbDLyr5nWzFKMqunrOjoWHAQJUeStYse2FKgPcuTvVBJ3ZAkrukgPhurjdpxBcBgMphikVR93t8GqxmXB5Ci_IN892dG68f2sfWLwwre2JUx3c4ZmWvW99_c2Pzzvpm65wCark0WzyDaqDjlWyO4fzWfna8gqifFp4jzJNH2AghLrl1Pzng0dEM3nPhthujg86RXq5bWWvgMSBkCmgC5TI0sqnRA6wOLxlQjy8zYpktHVd9dhRccyIruCeZHItaUvmkJzu7X1Thi06g0GNB4M5hpLMeeKcPcpe7TYx0.8FSqH9t_sktHtOXj_XkX26Gnb6HdFPaMyRZ0p51j_u0&dib_tag=se&keywords=100%25+Whey+Refil+900g+Protein+baunilha&qid=1783613276&sprefix=100+whey+refil+900g+protein+baunil%2Caps%2C214&sr=8-6"
         }
       ]
+    },
+    {
+      "id": "corsario-maison-viegas",
+      "nome": "Corsário Maison Viegas",
+      "tipo": "futura",
+      "preco_alvo": null,
+      "imagem": null,
+      "ativo": true,
+      "lojas": [
+        {
+          "loja": "maisonviegas.com.br",
+          "url": "https://maisonviegas.com.br/produtos/corsario-inspirado-em-le-male/"
+        }
+      ]
     }
   ]
 }
