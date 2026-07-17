@@ -8,9 +8,11 @@ Traceback (most recent call last):
 ValueError: a loja bloqueou o acesso do robo (pagina anti-bot)
 OK   creamy-eye-cream @ Creamy: R$ 136.83 (api-vtex)
 OK   creamy-eye-cream @ Amazon: R$ 116.31 (amazon-vis)
-OK   impressora-3d-bambu-lab-a1 @ Amazon: R$ 4488.76 (amazon-json)
+OK   impressora-3d-bambu-lab-a1 @ Amazon: R$ 5180.00 (amazon-vis)
 OK   fita-de-silicone-para-cicatriz @ Amazon: R$ 62.99 (amazon-vis)
-OK   whey-adaptogen-chocomaltine-mensal @ Amazon: R$ 172.00 (amazon-json)
+OK   whey-adaptogen-chocomaltine-mensal @ Amazon: R$ 165.00 (amazon-vis)
 OK   whey-concentrado-max-tit-baunilha @ Amazon: R$ 129.00 (amazon-vis)
+IMG  corsario-maison-viegas: imagem encontrada automaticamente
+OK   corsario-maison-viegas @ maisonviegas.com.br: R$ 109.00 (json-ld)
 
-Coleta: 6 ok, 1 falha(s).
+Coleta: 7 ok, 1 falha(s).
