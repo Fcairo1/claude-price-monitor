@@ -228,7 +228,7 @@ async function carregar() {
 
 // ---------------------------------------------------------------- análise
 function lojasDe(p) {
-  if (p.lojas && p.lojas.length) return p.lojas.filter(l => l.url).map(l => ({ loja: l.loja || dominio(l.url), url: l.url }));
+  if (p.lojas && p.lojas.length) return p.lojas.filter(l => l.url).map(l => ({ loja: l.loja || dominio(l.url), url: l.url, variante: l.variante || null }));
   if (p.url) return [{ loja: p.loja || dominio(p.url), url: p.url }];
   return [];
 }
@@ -334,7 +334,7 @@ function render() {
       <div class="lojas">
         ${infoLojas.map(l => `
           <a class="loja-row ${maisBarata && l.loja === maisBarata.loja && lojas.length > 1 ? 'melhor' : ''}" href="${esc(l.url)}" target="_blank" rel="noopener">
-            <span class="nome">${esc(l.loja)} ↗</span>
+            <span class="nome">${esc(l.loja)}${l.variante ? ' · ' + esc(l.variante) : ''} ↗</span>
             <span>
               ${!l.disponivel ? '<span class="indisp">indisponível</span> ' : ''}
               <span class="preco">${l.atual != null ? BRL.format(l.atual) : '—'}</span>
@@ -504,13 +504,14 @@ async function salvarProdutosJson(novaLista, msg) {
   produtos = novaLista;
 }
 
-function addLojaRow(nome = '', url = '') {
+function addLojaRow(nome = '', url = '', variante = '') {
   const box = document.getElementById('lojasBox');
   const row = document.createElement('div');
   row.className = 'loja-input-row';
   row.innerHTML = `
     <input type="text" class="nome-loja" placeholder="Loja" value="${esc(nome)}">
     <input type="url" class="url-loja" placeholder="https://..." value="${esc(url)}">
+    <input type="text" class="var-loja" placeholder="Variação" title="Se o produto tem dropdown de tamanho/variação, escreva aqui a opção que você quer monitorar, igual ao site (ex.: 100 ML)" value="${esc(variante || '')}" style="flex:0 0 22%;">
     <button type="button" class="rm" title="Remover loja" onclick="this.parentElement.remove()">✕</button>`;
   box.appendChild(row);
 }
@@ -519,10 +520,11 @@ function lerLojasDoForm() {
   return [...document.querySelectorAll('#lojasBox .loja-input-row')]
     .map(r => ({
       loja: r.querySelector('.nome-loja').value.trim() || null,
-      url: r.querySelector('.url-loja').value.trim()
+      url: r.querySelector('.url-loja').value.trim(),
+      variante: r.querySelector('.var-loja').value.trim() || null
     }))
     .filter(l => l.url.startsWith('http'))
-    .map(l => ({ loja: l.loja || dominio(l.url), url: l.url }));
+    .map(l => ({ loja: l.loja || dominio(l.url), url: l.url, variante: l.variante }));
 }
 
 function abrirAdd() {
@@ -549,7 +551,7 @@ function abrirEditar(id) {
   document.getElementById('fImagemArquivo').value = '';
   document.getElementById('lojasBox').innerHTML = '';
   const lojas = lojasDe(p);
-  if (lojas.length) lojas.forEach(l => addLojaRow(l.loja, l.url)); else addLojaRow();
+  if (lojas.length) lojas.forEach(l => addLojaRow(l.loja, l.url, l.variante)); else addLojaRow();
   abrirModal('modalProduto');
 }
 

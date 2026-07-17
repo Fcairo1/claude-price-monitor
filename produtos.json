@@ -120,7 +120,8 @@
       "lojas": [
         {
           "loja": "maisonviegas.com.br",
-          "url": "https://maisonviegas.com.br/produtos/corsario-inspirado-em-le-male/"
+          "url": "https://maisonviegas.com.br/produtos/corsario-inspirado-em-le-male/",
+          "variante": "100 ML"
         }
       ]
     },
@@ -134,7 +135,8 @@
       "lojas": [
         {
           "loja": "maisonviegas.com.br",
-          "url": "https://maisonviegas.com.br/produtos/spartan-elixir-inspirado-em-invictus-victory-elixir/"
+          "url": "https://maisonviegas.com.br/produtos/spartan-elixir-inspirado-em-invictus-victory-elixir/",
+          "variante": "100 ML"
         }
       ]
     }

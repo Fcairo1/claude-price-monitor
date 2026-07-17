@@ -243,6 +243,70 @@ def escolher_preco(cands, referencia=None):
     return cands[0]
 
 
+def preco_variante(html: str, variante: str):
+    """
+    Busca o preco de uma variacao especifica (ex.: '100 ML') quando o produto
+    tem dropdown de tamanhos e a pagina mostra por padrao outra variacao.
+    """
+    alvo = re.sub(r"\s+", "", variante).lower()
+
+    # 1) Nuvemshop/Tiendanube: array LS.variants com precos de todas as variacoes
+    m = re.search(r'LS\.variants\s*=\s*(\[.*?\])\s*;', html, re.S)
+    if m:
+        try:
+            variantes = json.loads(m.group(1))
+        except Exception:
+            variantes = []
+        for v in variantes:
+            if not isinstance(v, dict):
+                continue
+            opcoes = json.dumps(
+                [v.get(k) for k in ("option0", "option1", "option2", "options", "name", "values")],
+                ensure_ascii=False)
+            if alvo not in re.sub(r"\s+", "", opcoes).lower():
+                continue
+            if v.get("price_number"):
+                preco = normalizar_preco(v["price_number"])
+            elif v.get("price_short") or v.get("price_long"):
+                preco = normalizar_preco(v.get("price_short") or v.get("price_long"))
+            elif isinstance(v.get("price"), (int, float)):
+                preco = float(v["price"]) / 100.0  # Nuvemshop guarda em centavos
+            else:
+                preco = None
+            if preco:
+                disp = bool(v.get("available", True)) and int(v.get("stock") or 1) > 0
+                return preco, disp, "variante-nuvem"
+
+    # 2) JSON-LD: oferta cujo nome/sku contem a variacao
+    padrao_ld = r'<script[^>]*type=["\']application/ld\+json["\'][^>]*>(.*?)</script>'
+    for bloco in re.finditer(padrao_ld, html, re.S | re.I):
+        try:
+            dado = json.loads(bloco.group(1).strip())
+        except Exception:
+            continue
+        for obj in _iterar_objetos(dado):
+            rotulo = re.sub(r"\s+", "", f'{obj.get("name","")}{obj.get("sku","")}').lower()
+            if "price" in obj and alvo in rotulo:
+                preco = normalizar_preco(obj.get("price"))
+                if preco:
+                    disp = "instock" in str(obj.get("availability", "instock")).lower()
+                    return preco, disp, "variante-jsonld"
+
+    # 3) generico: preco proximo ao texto da variacao no codigo da pagina
+    tokens = [re.escape(t) for t in variante.strip().split()]
+    padrao_var = r"[\s\-]{0,3}".join(tokens)
+    for m in re.finditer(padrao_var, html, re.I):
+        depois = html[m.end():m.end() + 500]
+        antes = html[max(0, m.start() - 500):m.start()]
+        pm = re.search(r'R\$(?:&nbsp;|\s)*([\d.,]+)', depois)
+        brutos = ([pm.group(1)] if pm else []) + re.findall(r'R\$(?:&nbsp;|\s)*([\d.,]+)', antes)[-1:]
+        for bruto in brutos:
+            preco = normalizar_preco(bruto)
+            if preco:
+                return preco, True, "variante-prox"
+    return None
+
+
 def url_amazon_canonica(url: str) -> str:
     """
     Reconstroi a URL com o ASIN + psc=1, que TRAVA a variacao exata do produto.
@@ -313,27 +377,30 @@ def preco_vtex(url: str):
 
 
 def lojas_de(produto: dict):
-    """Retorna [(nome_da_loja, url), ...] — aceita formato novo (lojas) e antigo (url)."""
+    """Retorna [(nome_da_loja, url, variante), ...] — aceita formato novo (lojas) e antigo (url)."""
     def nome_padrao(url):
         return urlsplit(url).netloc.replace("www.", "")
     if produto.get("lojas"):
-        return [(l.get("loja") or nome_padrao(l["url"]), l["url"]) for l in produto["lojas"] if l.get("url")]
+        return [(l.get("loja") or nome_padrao(l["url"]), l["url"], l.get("variante"))
+                for l in produto["lojas"] if l.get("url")]
     if produto.get("url"):
-        return [(produto.get("loja") or nome_padrao(produto["url"]), produto["url"])]
+        return [(produto.get("loja") or nome_padrao(produto["url"]), produto["url"], None)]
     return []
 
 
-def coletar_preco(url: str, referencia=None):
+def coletar_preco(url: str, referencia=None, variante=None):
     """referencia = mediana dos ultimos precos conhecidos deste produto/loja,
-    usada como validacao de sanidade contra leituras erradas."""
+    usada como validacao de sanidade. variante = ex.: '100 ML' para produtos
+    com dropdown de tamanho."""
     if "mercadolivre.com" in url or "mercadolibre.com" in url:
         r = preco_mercado_livre(url)
         if r:
             return r
 
-    r = preco_vtex(url)
-    if r:
-        return r
+    if not variante:
+        r = preco_vtex(url)
+        if r:
+            return r
 
     eh_amazon = "amazon." in urlsplit(url).netloc
     if eh_amazon:
@@ -347,6 +414,17 @@ def coletar_preco(url: str, referencia=None):
         if t:
             time.sleep(6)
         html = buscar(url, ua=(UA_MOBILE if (eh_amazon and t % 2) else None))
+
+        if variante:
+            # variacao configurada: SO aceita o preco dela; nunca cai no preco
+            # padrao da pagina (que seria de outra variacao)
+            r = preco_variante(html, variante)
+            if r:
+                preco, disp, fonte = r
+                if referencia and not (referencia * 0.5 <= preco <= referencia * 2):
+                    continue
+                return preco, disp, fonte, imagem_de_html(html)
+            continue
 
         if eh_amazon:
             escolha = escolher_preco(preco_amazon(html), referencia)
@@ -367,6 +445,11 @@ def coletar_preco(url: str, referencia=None):
 
     if "suspicious-traffic" in html or "account-verification" in html:
         raise ValueError("a loja bloqueou o acesso do robo (pagina anti-bot)")
+    if variante:
+        raise ValueError(
+            f"nao encontrei o preco da variacao '{variante}' na pagina — "
+            f"confira se o nome esta escrito igual ao do site (ex.: '100 ML')"
+        )
     candidatos = re.findall(r'class="a-offscreen">([^<]{0,25})', html)[:8]
     if eh_amazon and candidatos and referencia:
         raise ValueError(
@@ -407,10 +490,10 @@ def main() -> int:
         referencias = {k: statistics.median(v[-7:]) for k, v in grupos.items()}
 
     for p in ativos:
-        for nome_loja, url in lojas_de(p):
+        for nome_loja, url, variante in lojas_de(p):
             try:
                 ref = referencias.get((p["id"], nome_loja))
-                preco, disponivel, fonte, imagem = coletar_preco(url, ref)
+                preco, disponivel, fonte, imagem = coletar_preco(url, ref, variante)
                 if imagem and not p.get("imagem"):
                     p["imagem"] = imagem
                     produtos_alterados = True
