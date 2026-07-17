@@ -115,7 +115,7 @@
       "nome": "Corsário Maison Viegas",
       "tipo": "futura",
       "preco_alvo": null,
-      "imagem": null,
+      "imagem": "http://acdn-us.mitiendanube.com/stores/002/823/151/products/corsario-fffinal-c605856d3e74ad2a9d17653876503558-640-0.webp",
       "ativo": true,
       "lojas": [
         {
@@ -129,7 +129,7 @@
       "nome": "Spartan Elixir",
       "tipo": "recorrente",
       "preco_alvo": null,
-      "imagem": null,
+      "imagem": "http://acdn-us.mitiendanube.com/stores/002/823/151/products/spartan-elixir-ac0dc3de8242eaa0c217193468744248-640-0.webp",
       "ativo": true,
       "lojas": [
         {
