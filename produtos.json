@@ -139,6 +139,21 @@
           "variante": "100 ML"
         }
       ]
+    },
+    {
+      "id": "refill-vanilla-para-maquina-aroma",
+      "nome": "Refill Vanilla para máquina aroma",
+      "tipo": "recorrente",
+      "preco_alvo": null,
+      "imagem": null,
+      "ativo": true,
+      "lojas": [
+        {
+          "loja": "Ramim",
+          "url": "https://www.ramim.com.br/aromatizacao/refil-difusor-aromas-p-maquina-automatica-escolha-a-fragrancia?variant_id=4734",
+          "variante": "500ml"
+        }
+      ]
     }
   ]
 }
