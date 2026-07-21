@@ -145,7 +145,7 @@
       "nome": "Refill Vanilla para máquina aroma",
       "tipo": "recorrente",
       "preco_alvo": null,
-      "imagem": null,
+      "imagem": "https://images.tcdn.com.br/img/img_prod/1119332/refil_difusor_aromas_p_maquina_automatica_escolha_a_fragrancia_1040_1_c12b152002b8ffeff50621021e616474.jpg",
       "ativo": true,
       "lojas": [
         {
