@@ -1,20 +1,19 @@
 ERRO whey-concentrado-max-tit-baunilha @ Mercado Livre: ValueError: a loja bloqueou o acesso do robo (pagina anti-bot)
 Traceback (most recent call last):
-  File "/home/runner/work/claude-price-monitor/claude-price-monitor/coletor.py", line 519, in main
+  File "/home/runner/work/claude-price-monitor/claude-price-monitor/coletor.py", line 520, in main
     preco, disponivel, fonte, imagem = coletar_preco(url, ref, variante)
                                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/runner/work/claude-price-monitor/claude-price-monitor/coletor.py", line 468, in coletar_preco
+  File "/home/runner/work/claude-price-monitor/claude-price-monitor/coletor.py", line 469, in coletar_preco
     raise ValueError("a loja bloqueou o acesso do robo (pagina anti-bot)")
 ValueError: a loja bloqueou o acesso do robo (pagina anti-bot)
 OK   creamy-eye-cream @ Creamy: R$ 136.83 (api-vtex)
-OK   creamy-eye-cream @ Amazon: R$ 125.99 (amazon-json)
+OK   creamy-eye-cream @ Amazon: R$ 116.31 (amazon-vis)
 OK   impressora-3d-bambu-lab-a1 @ Amazon: R$ 5159.90 (amazon-vis)
 OK   fita-de-silicone-para-cicatriz @ Amazon: R$ 62.99 (amazon-vis)
 OK   whey-adaptogen-chocomaltine-mensal @ Amazon: R$ 165.00 (amazon-vis)
-OK   whey-concentrado-max-tit-baunilha @ Amazon: R$ 129.00 (amazon-vis)
+OK   whey-concentrado-max-tit-baunilha @ Amazon: R$ 129.90 (amazon-vis)
 OK   corsario-maison-viegas @ maisonviegas.com.br: R$ 169.00 (variante-nuvem)
 OK   spartan-elixir @ maisonviegas.com.br: R$ 179.00 (variante-nuvem)
-IMG  refill-vanilla-para-maquina-aroma: imagem encontrada automaticamente
-OK   refill-vanilla-para-maquina-aroma @ Ramim: R$ 1999.00 (variante-prox)
+OK   refill-vanilla-para-maquina-aroma @ Ramim: R$ 199.00 (variante-id)
 
 Coleta: 9 ok, 1 falha(s).
