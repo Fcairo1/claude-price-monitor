@@ -292,7 +292,21 @@ def preco_variante(html: str, variante: str, url_origem: str = ""):
                     disp = "instock" in str(obj.get("availability", "instock")).lower()
                     return preco, disp, "variante-jsonld"
 
-    # 3) generico: preco proximo ao texto da variacao no codigo da pagina.
+    # 3) id da variacao presente na URL (?variant_id=1234): preco perto do id
+    #    (mais preciso que buscar pelo texto, vem primeiro)
+    m = re.search(r'variant(?:_|%5F)?id=(\d+)', url_origem or "", re.I)
+    if m:
+        vid = m.group(1)
+        for occ in re.finditer(rf'\b{vid}\b', html):
+            regiao = html[max(0, occ.start() - 600):occ.end() + 600]
+            pm = re.search(r'"(?:price|preco|valor)[^"]*"\s*:\s*"?([\d.,]+)', regiao, re.I) or \
+                 re.search(r'R\$(?:&nbsp;|\s)*([\d.,]+)', regiao)
+            if pm:
+                preco = normalizar_preco(pm.group(1))
+                if preco:
+                    return preco, True, "variante-id"
+
+    # 4) generico: preco proximo ao texto da variacao no codigo da pagina.
     #    O padrao ignora espacos/maiusculas: '500ml' encontra '500 ML', '500ml' etc.
     padrao_var = r"[\s&nbsp;]{0,6}".join(re.escape(c) for c in alvo)
     for m in re.finditer(padrao_var, html, re.I):
@@ -305,19 +319,6 @@ def preco_variante(html: str, variante: str, url_origem: str = ""):
             preco = normalizar_preco(bruto)
             if preco:
                 return preco, True, "variante-prox"
-
-    # 4) id da variacao presente na URL (?variant_id=1234): preco perto do id
-    m = re.search(r'variant(?:_|%5F)?id=(\d+)', url_origem or "", re.I)
-    if m:
-        vid = m.group(1)
-        for occ in re.finditer(rf'\b{vid}\b', html):
-            regiao = html[max(0, occ.start() - 600):occ.end() + 600]
-            pm = re.search(r'R\$(?:&nbsp;|\s)*([\d.,]+)', regiao) or \
-                 re.search(r'"(?:price|preco|valor)[^"]*"\s*:\s*"?([\d.,]+)', regiao, re.I)
-            if pm:
-                preco = normalizar_preco(pm.group(1))
-                if preco:
-                    return preco, True, "variante-id"
     return None
 
 
