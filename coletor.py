@@ -243,7 +243,7 @@ def escolher_preco(cands, referencia=None):
     return cands[0]
 
 
-def preco_variante(html: str, variante: str):
+def preco_variante(html: str, variante: str, url_origem: str = ""):
     """
     Busca o preco de uma variacao especifica (ex.: '100 ML') quando o produto
     tem dropdown de tamanhos e a pagina mostra por padrao outra variacao.
@@ -292,18 +292,32 @@ def preco_variante(html: str, variante: str):
                     disp = "instock" in str(obj.get("availability", "instock")).lower()
                     return preco, disp, "variante-jsonld"
 
-    # 3) generico: preco proximo ao texto da variacao no codigo da pagina
-    tokens = [re.escape(t) for t in variante.strip().split()]
-    padrao_var = r"[\s\-]{0,3}".join(tokens)
+    # 3) generico: preco proximo ao texto da variacao no codigo da pagina.
+    #    O padrao ignora espacos/maiusculas: '500ml' encontra '500 ML', '500ml' etc.
+    padrao_var = r"[\s&nbsp;]{0,6}".join(re.escape(c) for c in alvo)
     for m in re.finditer(padrao_var, html, re.I):
         depois = html[m.end():m.end() + 500]
         antes = html[max(0, m.start() - 500):m.start()]
-        pm = re.search(r'R\$(?:&nbsp;|\s)*([\d.,]+)', depois)
+        pm = re.search(r'R\$(?:&nbsp;|\s)*([\d.,]+)', depois) or \
+             re.search(r'"price[^"]*"\s*:\s*"?([\d.,]+)', depois)
         brutos = ([pm.group(1)] if pm else []) + re.findall(r'R\$(?:&nbsp;|\s)*([\d.,]+)', antes)[-1:]
         for bruto in brutos:
             preco = normalizar_preco(bruto)
             if preco:
                 return preco, True, "variante-prox"
+
+    # 4) id da variacao presente na URL (?variant_id=1234): preco perto do id
+    m = re.search(r'variant(?:_|%5F)?id=(\d+)', url_origem or "", re.I)
+    if m:
+        vid = m.group(1)
+        for occ in re.finditer(rf'\b{vid}\b', html):
+            regiao = html[max(0, occ.start() - 600):occ.end() + 600]
+            pm = re.search(r'R\$(?:&nbsp;|\s)*([\d.,]+)', regiao) or \
+                 re.search(r'"(?:price|preco|valor)[^"]*"\s*:\s*"?([\d.,]+)', regiao, re.I)
+            if pm:
+                preco = normalizar_preco(pm.group(1))
+                if preco:
+                    return preco, True, "variante-id"
     return None
 
 
@@ -418,7 +432,7 @@ def coletar_preco(url: str, referencia=None, variante=None):
         if variante:
             # variacao configurada: SO aceita o preco dela; nunca cai no preco
             # padrao da pagina (que seria de outra variacao)
-            r = preco_variante(html, variante)
+            r = preco_variante(html, variante, url)
             if r:
                 preco, disp, fonte = r
                 if referencia and not (referencia * 0.5 <= preco <= referencia * 2):
@@ -446,9 +460,11 @@ def coletar_preco(url: str, referencia=None, variante=None):
     if "suspicious-traffic" in html or "account-verification" in html:
         raise ValueError("a loja bloqueou o acesso do robo (pagina anti-bot)")
     if variante:
+        volumes = sorted(set(re.findall(r'\d{1,4}\s*(?:ml|g|kg|l|un)\b', html, re.I)))[:12]
         raise ValueError(
             f"nao encontrei o preco da variacao '{variante}' na pagina — "
-            f"confira se o nome esta escrito igual ao do site (ex.: '100 ML')"
+            f"variacoes que enxerguei no site: {volumes or 'nenhuma'} "
+            f"(html {len(html)} chars)"
         )
     candidatos = re.findall(r'class="a-offscreen">([^<]{0,25})', html)[:8]
     if eh_amazon and candidatos and referencia:
