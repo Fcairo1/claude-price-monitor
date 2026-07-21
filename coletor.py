@@ -420,14 +420,19 @@ def coletar_preco(url: str, referencia=None, variante=None):
     if eh_amazon:
         url = url_amazon_canonica(url)
 
-    # Amazon as vezes serve uma versao da pagina sem o bloco de preco;
+    # Lojas as vezes servem pagina sem preco, ou bloqueiam uma tentativa (403);
     # tentar mais de uma vez (alternando desktop/celular) resolve na maioria.
-    tentativas = 4 if eh_amazon else 1
+    tentativas = 4 if eh_amazon else 3
     html = ""
+    erro_http = None
     for t in range(tentativas):
         if t:
             time.sleep(6)
-        html = buscar(url, ua=(UA_MOBILE if (eh_amazon and t % 2) else None))
+        try:
+            html = buscar(url, ua=(UA_MOBILE if t % 2 else None))
+        except Exception as e:
+            erro_http = e
+            continue
 
         if variante:
             # variacao configurada: SO aceita o preco dela; nunca cai no preco
@@ -457,6 +462,8 @@ def coletar_preco(url: str, referencia=None, variante=None):
                     continue
                 return preco, disp, fonte, imagem_de_html(html)
 
+    if not html and erro_http:
+        raise ValueError(f"a loja recusou todas as tentativas de acesso ({erro_http})")
     if "suspicious-traffic" in html or "account-verification" in html:
         raise ValueError("a loja bloqueou o acesso do robo (pagina anti-bot)")
     if variante:
