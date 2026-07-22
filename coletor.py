@@ -135,9 +135,19 @@ def _ml_api(caminho: str):
     token = token_mercado_livre()
     if token:
         headers["Authorization"] = f"Bearer {token}"
+    else:
+        print("AVISO mercado livre: sem token (secrets ausentes ou falha no oauth)", file=sys.stderr)
     req = urllib.request.Request(f"https://api.mercadolibre.com{caminho}", headers=headers)
-    with urllib.request.urlopen(req, timeout=30) as r:
-        return json.loads(r.read())
+    try:
+        with urllib.request.urlopen(req, timeout=30) as r:
+            return json.loads(r.read())
+    except urllib.error.HTTPError as e:
+        corpo = ""
+        try:
+            corpo = e.read().decode("utf-8", errors="replace")[:300]
+        except Exception:
+            pass
+        raise ValueError(f"HTTP {e.code} em {caminho} (token={'sim' if token else 'nao'}): {corpo}")
 
 
 def preco_mercado_livre(url: str):
