@@ -17,12 +17,14 @@ Uso apenas de biblioteca padrao do Python (sem dependencias).
 import csv
 import gzip
 import json
+import os
 import re
 import statistics
 import sys
 import time
 import traceback
 from collections import Counter
+from urllib.parse import urlencode
 import urllib.request
 import urllib.error
 from urllib.parse import urlsplit
@@ -100,21 +102,69 @@ def imagem_de_html(html: str):
     return None
 
 
+_ml_token = None
+
+
+def token_mercado_livre():
+    """Token de aplicacao do ML (client credentials), via secrets do GitHub."""
+    global _ml_token
+    if _ml_token:
+        return _ml_token
+    cid = os.environ.get("ML_CLIENT_ID")
+    csec = os.environ.get("ML_CLIENT_SECRET")
+    if not (cid and csec):
+        return None
+    corpo = urlencode({
+        "grant_type": "client_credentials",
+        "client_id": cid,
+        "client_secret": csec,
+    }).encode()
+    req = urllib.request.Request(
+        "https://api.mercadolibre.com/oauth/token",
+        data=corpo,
+        headers={"Content-Type": "application/x-www-form-urlencoded",
+                 "Accept": "application/json", "User-Agent": UA},
+    )
+    with urllib.request.urlopen(req, timeout=30) as r:
+        _ml_token = json.loads(r.read()).get("access_token")
+    return _ml_token
+
+
+def _ml_api(caminho: str):
+    headers = {"User-Agent": UA, "Accept": "application/json"}
+    token = token_mercado_livre()
+    if token:
+        headers["Authorization"] = f"Bearer {token}"
+    req = urllib.request.Request(f"https://api.mercadolibre.com{caminho}", headers=headers)
+    with urllib.request.urlopen(req, timeout=30) as r:
+        return json.loads(r.read())
+
+
 def preco_mercado_livre(url: str):
     m = re.search(r"(MLB)-?(\d+)", url, re.I)
     if not m:
         return None
     item_id = f"{m.group(1).upper()}{m.group(2)}"
+    eh_catalogo = "/p/MLB" in url  # paginas /p/MLB... sao de catalogo
+
     try:
-        dados = json.loads(buscar(f"https://api.mercadolibre.com/items/{item_id}"))
-        preco = normalizar_preco(dados.get("price"))
-        if preco:
+        if eh_catalogo:
+            dados = _ml_api(f"/products/{item_id}")
+            oferta = dados.get("buy_box_winner") or {}
+            preco = normalizar_preco(oferta.get("price"))
+            disponivel = bool(oferta) and oferta.get("available_quantity", 1) != 0
+            fotos = dados.get("pictures") or []
+            imagem = fotos[0].get("url") if fotos else None
+        else:
+            dados = _ml_api(f"/items/{item_id}")
+            preco = normalizar_preco(dados.get("price"))
             disponivel = dados.get("status") == "active" and dados.get("available_quantity", 0) > 0
             fotos = dados.get("pictures") or []
-            imagem = (fotos[0].get("secure_url") if fotos else None) or dados.get("secure_thumbnail") or dados.get("thumbnail")
+            imagem = (fotos[0].get("secure_url") if fotos else None) or dados.get("secure_thumbnail")
+        if preco:
             return preco, disponivel, "api-mercadolivre", imagem
-    except Exception:
-        pass
+    except Exception as e:
+        print(f"AVISO mercado livre ({item_id}): {type(e).__name__}: {e}", file=sys.stderr)
     return None  # cai para as estrategias genericas na pagina
 
 

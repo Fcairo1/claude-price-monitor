@@ -28,6 +28,9 @@ jobs:
       - name: Coletar preços
         id: coleta
         continue-on-error: true
+        env:
+          ML_CLIENT_ID: ${{ secrets.ML_CLIENT_ID }}
+          ML_CLIENT_SECRET: ${{ secrets.ML_CLIENT_SECRET }}
         run: |
           set -o pipefail
           python coletor.py 2>&1 | tee coleta.log
