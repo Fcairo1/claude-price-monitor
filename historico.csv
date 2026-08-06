@@ -434,3 +434,12 @@ data,hora,produto_id,loja,preco,disponivel,fonte
 2026-08-05,08:16,corsario-maison-viegas,maisonviegas.com.br,169.00,sim,variante-nuvem
 2026-08-05,08:16,spartan-elixir,maisonviegas.com.br,179.00,sim,variante-nuvem
 2026-08-05,08:16,refill-vanilla-para-maquina-aroma,Ramim,199.00,sim,variante-id
+2026-08-06,08:18,creamy-eye-cream,Creamy,123.15,sim,api-vtex
+2026-08-06,08:18,creamy-eye-cream,Amazon,89.46,sim,amazon-vis
+2026-08-06,08:18,impressora-3d-bambu-lab-a1,Amazon,4699.00,sim,amazon-vis
+2026-08-06,08:18,fita-de-silicone-para-cicatriz,Amazon,53.09,sim,amazon-json
+2026-08-06,08:18,whey-adaptogen-chocomaltine-mensal,Amazon,169.01,sim,amazon-json
+2026-08-06,08:18,whey-concentrado-max-tit-baunilha,Amazon,130.00,sim,amazon-vis
+2026-08-06,08:18,corsario-maison-viegas,maisonviegas.com.br,169.00,sim,variante-nuvem
+2026-08-06,08:18,spartan-elixir,maisonviegas.com.br,179.00,sim,variante-nuvem
+2026-08-06,08:18,refill-vanilla-para-maquina-aroma,Ramim,199.00,sim,variante-id
