@@ -487,27 +487,26 @@ for desativado, será preciso repetir esse clique manual.
 
 ## 11. Estado atual e pendências
 
-### 11.1 Bug aberto — Refill Vanilla (Ramim)
+### 11.1 Bug resolvido — Refill Vanilla (Ramim) — 30/08/2026
 
-**A coleta de 30/08 falhou.** O log diz:
+**Sintoma:** a partir de 28/08 a coleta do Refill Vanilla falhava com
+`nao encontrei o preco da variacao '500ml'`. A lista de "variações que enxerguei"
+no log (`1000ml`, `250g`...) era **lixo de regex** (`\d{1,4}\s*(ml|g|kg|l|un)` em
+qualquer lugar do HTML), não o dropdown real — despistou o diagnóstico. A variação
+500 ml nunca deixou de existir no site.
 
-```
-ERRO refill-vanilla-para-maquina-aroma @ Ramim: nao encontrei o preco da variacao
-'500ml' — variacoes que enxerguei no site: ['1000ml','110g','1562 L','160g','16l',
-'19l','1L','1l','22G','240g','250g','2812 L'] (html 820018 chars)
-```
+**Causa raiz:** o site passou a incluir um bloco `gtag('event','view_item', ...)`
+com `..."price":199.9,"item_category":...` perto da primeira ocorrência de `4734`
+— justo a janela que a estratégia `variante-id` inspeciona primeiro. A regex de
+captura `([\d.,]+)` é gananciosa e levava a **vírgula junto**: `199.9,`. Aí
+`normalizar_preco("199.9,")` via `.` **e** `,`, aplicava a regra "ponto = milhar" e
+devolvia **1999.0**. Esse valor estourava a faixa de sanidade (`ref×0.5..ref×2` =
+99,50–398), todas as tentativas eram rejeitadas e caía no erro genérico.
 
-Note que **`500ml` não aparece** na lista de variações vistas — só `1000ml`, `250g`
-etc. Hipóteses, em ordem de probabilidade:
-
-1. A loja **descontinuou o refil de 500 ml** ou renomeou a variação.
-2. O `variant_id=4734` da URL cadastrada não existe mais, e a página caiu num
-   estado diferente.
-3. A loja mudou o layout e a lista de variações agora carrega via JS.
-
-**Primeiro passo sugerido:** abrir a URL cadastrada no navegador e ver o que o
-dropdown oferece hoje. Funcionou por ~44 coletas (fonte `variante-id`), então é
-mudança recente do site.
+**Correção:** uma linha em `normalizar_preco` — `s = s.strip(".,")` depois de
+limpar não-dígitos. Corrige no centro em vez de mexer nas ~5 regexes com o mesmo
+problema latente (linhas ~362, 376, 377, 408). Casos de regressão da seção 6
+continuam passando. Preço correto hoje: **R$ 199,90** (era 199,00 no histórico).
 
 ### 11.2 Produtos monitorados hoje (8)
 
