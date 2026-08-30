@@ -75,6 +75,7 @@ def normalizar_preco(bruto) -> float | None:
         v = float(bruto)
         return v if v > 0 else None
     s = re.sub(r"[^\d.,]", "", str(bruto))
+    s = s.strip(".,")  # regex de captura as vezes leva ',' ou '.' de sobra (ex.: JSON "price":199.9,)
     if not s:
         return None
     if "," in s and "." in s:
