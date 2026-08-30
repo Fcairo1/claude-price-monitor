@@ -142,6 +142,21 @@
           "variante": "500ml"
         }
       ]
+    },
+    {
+      "id": "parafusadeira-wap",
+      "nome": "Parafusadeira WAP",
+      "tipo": "futura",
+      "preco_alvo": null,
+      "imagem": null,
+      "ativo": true,
+      "lojas": [
+        {
+          "loja": "Amazon",
+          "url": "https://www.amazon.com.br/gp/product/B0F2JMYPQ9?smid=A1ZZFT5FULY4LN&psc=1",
+          "variante": null
+        }
+      ]
     }
   ]
 }
