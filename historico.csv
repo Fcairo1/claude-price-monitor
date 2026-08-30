@@ -635,3 +635,10 @@ data,hora,produto_id,loja,preco,disponivel,fonte
 2026-08-29,11:08,whey-concentrado-max-tit-baunilha,Amazon,150.90,sim,amazon-vis
 2026-08-29,11:08,corsario-maison-viegas,maisonviegas.com.br,169.00,sim,variante-nuvem
 2026-08-29,11:08,spartan-elixir,maisonviegas.com.br,179.00,sim,variante-nuvem
+2026-08-30,11:14,creamy-eye-cream,Creamy,116.31,sim,api-vtex
+2026-08-30,11:14,creamy-eye-cream,Amazon,113.00,sim,amazon-vis
+2026-08-30,11:14,fita-de-silicone-para-cicatriz,Amazon,62.99,sim,amazon-json
+2026-08-30,11:14,whey-adaptogen-chocomaltine-mensal,Amazon,192.90,sim,amazon-vis
+2026-08-30,11:14,whey-concentrado-max-tit-baunilha,Amazon,151.00,sim,amazon-json
+2026-08-30,11:14,corsario-maison-viegas,maisonviegas.com.br,169.00,sim,variante-nuvem
+2026-08-30,11:14,spartan-elixir,maisonviegas.com.br,179.00,sim,variante-nuvem
