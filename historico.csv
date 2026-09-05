@@ -704,3 +704,7 @@ data,hora,produto_id,loja,preco,disponivel,fonte
 2026-09-04,10:06,spartan-elixir,maisonviegas.com.br,179.00,sim,variante-nuvem
 2026-09-04,10:06,refill-vanilla-para-maquina-aroma,Ramim,199.90,sim,variante-id
 2026-09-04,10:06,parafusadeira-wap,Amazon,189.99,sim,amazon-json
+2026-09-05,09:18,creamy-eye-cream,Creamy,132.99,sim,api-vtex
+2026-09-05,09:18,corsario-maison-viegas,maisonviegas.com.br,169.00,sim,variante-nuvem
+2026-09-05,09:18,spartan-elixir,maisonviegas.com.br,179.00,sim,variante-nuvem
+2026-09-05,09:18,refill-vanilla-para-maquina-aroma,Ramim,199.90,sim,variante-id
