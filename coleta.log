@@ -1,18 +1,11 @@
-ERRO whey-concentrado-max-tit-baunilha @ Amazon: ValueError: a loja recusou todas as tentativas de acesso (HTTP Error 503: Service Unavailable)
-Traceback (most recent call last):
-  File "/home/runner/work/claude-price-monitor/claude-price-monitor/coletor.py", line 581, in main
-    preco, disponivel, fonte, imagem = coletar_preco(url, ref, variante)
-                                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/runner/work/claude-price-monitor/claude-price-monitor/coletor.py", line 528, in coletar_preco
-    raise ValueError(f"a loja recusou todas as tentativas de acesso ({erro_http})")
-ValueError: a loja recusou todas as tentativas de acesso (HTTP Error 503: Service Unavailable)
 OK   creamy-eye-cream @ Creamy: R$ 125.99 (api-vtex)
-OK   creamy-eye-cream @ Amazon: R$ 111.99 (amazon-json)
-OK   fita-de-silicone-para-cicatriz @ Amazon: R$ 69.81 (amazon-vis)
-OK   whey-adaptogen-chocomaltine-mensal @ Amazon: R$ 159.02 (amazon-json)
+OK   creamy-eye-cream @ Amazon: R$ 99.99 (amazon-json)
+OK   fita-de-silicone-para-cicatriz @ Amazon: R$ 63.95 (amazon-vis)
+OK   whey-adaptogen-chocomaltine-mensal @ Amazon: R$ 159.02 (amazon-p2p)
+OK   whey-concentrado-max-tit-baunilha @ Amazon: R$ 161.00 (amazon-json)
 OK   corsario-maison-viegas @ maisonviegas.com.br: R$ 169.00 (variante-nuvem)
 OK   spartan-elixir @ maisonviegas.com.br: R$ 179.00 (variante-nuvem)
 OK   refill-vanilla-para-maquina-aroma @ Ramim: R$ 229.00 (variante-id)
-OK   parafusadeira-wap @ Amazon: R$ 140.90 (amazon-json)
+OK   parafusadeira-wap @ Amazon: R$ 140.90 (amazon-vis)
 
-Coleta: 8 ok, 1 falha(s).
+Coleta: 9 ok, 0 falha(s).
